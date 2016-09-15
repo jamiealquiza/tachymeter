@@ -1,4 +1,4 @@
-package chronon
+package tachymeter
 
 import (
 	"fmt"
@@ -13,7 +13,7 @@ type Config struct {
 
 type timeSlice []time.Duration
 
-type Chronon struct {
+type Tachymeter struct {
 	sync.Mutex
 	Safe          bool
 	Times         timeSlice
@@ -36,16 +36,16 @@ type Metrics struct {
 	Count   int
 }
 
-func New(c *Config) *Chronon {
-	return &Chronon{
+func New(c *Config) *Tachymeter {
+	return &Tachymeter{
 		Times: make([]time.Duration, c.Size),
 		Safe:  c.Safe,
 	}
 }
 
-// AddTime adds a time.Duration to the Chronon.Times
+// AddTime adds a time.Duration to the Tachymeter.Times
 // slice, then increments the position.
-func (m *Chronon) AddTime(t time.Duration) {
+func (m *Tachymeter) AddTime(t time.Duration) {
 	if m.Safe {
 		m.Lock()
 		defer m.Unlock()
@@ -62,7 +62,7 @@ func (m *Chronon) AddTime(t time.Duration) {
 }
 
 // AddCount simply counts events.
-func (m *Chronon) AddCount(i int) {
+func (m *Tachymeter) AddCount(i int) {
 	if m.Safe {
 		m.Lock()
 		defer m.Unlock()
@@ -73,7 +73,7 @@ func (m *Chronon) AddCount(i int) {
 
 // Dump prints out a generic output of
 // all gathered metrics.
-func (m *Chronon) Dump() {
+func (m *Tachymeter) Dump() {
 	metrics := m.Calc()
 	fmt.Printf("%d samples of %d events\n", metrics.Samples, metrics.Count)
 	fmt.Printf("Total:\t\t%s\n", metrics.Time.Total)

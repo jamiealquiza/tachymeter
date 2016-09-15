@@ -1,11 +1,11 @@
-# chronon
+# tachymeter
 A simple latency summary library for Go
 
 ```go
-import "github.com/jamiealquiza/chronon"
+import "github.com/jamiealquiza/tachymeter"
 
 func main() {
-	c := c.New(&chronon.Config{Size: 500)
+	c := c.New(&tachymeter.Config{Size: 500)
 
 	for i := 0; i < 1000; i++ {
 		start := time.Now()

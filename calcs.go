@@ -1,4 +1,4 @@
-package chronon
+package tachymeter
 
 import (
 	"sort"
@@ -20,9 +20,9 @@ func (p timeSlice) Swap(i, j int) {
 	p[i], p[j] = p[j], p[i]
 }
 
-// Calc calcs data held in a *Chronon
+// Calc calcs data held in a *Tachymeter
 // and returns a *Metrics.
-func (m *Chronon) Calc() *Metrics {
+func (m *Tachymeter) Calc() *Metrics {
 	m.Lock()
 	defer m.Unlock()
 	sort.Sort(m.Times)
