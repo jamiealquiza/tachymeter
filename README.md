@@ -5,7 +5,7 @@ A simple latency summary library for Go
 import "github.com/jamiealquiza/tachymeter"
 
 func main() {
-	c := c.New(&tachymeter.Config{Size: 500)
+	c := tachymeter.New(&tachymeter.Config{Size: 500)
 
 	for i := 0; i < 1000; i++ {
 		start := time.Now()
