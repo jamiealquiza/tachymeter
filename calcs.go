@@ -28,7 +28,7 @@ func (m *Tachymeter) Calc() *Metrics {
 	sort.Sort(m.Times)
 
 	metrics := &Metrics{}
-	metrics.Samples = len(m.Times)
+	metrics.Samples = m.TimesUsed
 	metrics.Count = m.Count
 	metrics.Time.Total = calcTotal(m.Times)
 	metrics.Time.Avg = calcAvg(metrics.Time.Total, len(m.Times))
@@ -38,7 +38,7 @@ func (m *Tachymeter) Calc() *Metrics {
 	metrics.Time.Max = m.Times[len(m.Times)-1]
 	metrics.Time.Min = m.Times[0]
 	rateTime := float64(metrics.Samples) / float64(metrics.Time.Total)
-	metrics.Rate.Second = rateTime*1e9
+	metrics.Rate.Second = rateTime * 1e9
 
 	return metrics
 }
