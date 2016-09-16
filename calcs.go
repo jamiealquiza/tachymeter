@@ -25,17 +25,19 @@ func (p timeSlice) Swap(i, j int) {
 func (m *Tachymeter) Calc() *Metrics {
 	m.Lock()
 	defer m.Unlock()
+
+	m.Times = m.Times[:m.TimesUsed]
 	sort.Sort(m.Times)
 
 	metrics := &Metrics{}
 	metrics.Samples = m.TimesUsed
 	metrics.Count = m.Count
 	metrics.Time.Total = calcTotal(m.Times)
-	metrics.Time.Avg = calcAvg(metrics.Time.Total, len(m.Times))
+	metrics.Time.Avg = calcAvg(metrics.Time.Total, metrics.Samples)
 	metrics.Time.p95 = calcp95(m.Times)
 	metrics.Time.Long10p = calcLong10p(m.Times)
 	metrics.Time.Short10p = calcShort10p(m.Times)
-	metrics.Time.Max = m.Times[len(m.Times)-1]
+	metrics.Time.Max = m.Times[metrics.Samples-1]
 	metrics.Time.Min = m.Times[0]
 	rateTime := float64(metrics.Samples) / float64(metrics.Time.Total)
 	metrics.Rate.Second = rateTime * 1e9
@@ -63,9 +65,14 @@ func calcp95(d []time.Duration) time.Duration {
 }
 
 func calcLong10p(d []time.Duration) time.Duration {
+	set := d[:int(float64(len(d))*0.1)]
+	if len(set) == 0 {
+		return time.Millisecond*0
+	}
+
 	var t time.Duration
 	var i int
-	for _, n := range d[int(float64(len(d))*0.9):] {
+	for _, n := range set {
 		t += n
 		i++
 	}
@@ -74,9 +81,14 @@ func calcLong10p(d []time.Duration) time.Duration {
 }
 
 func calcShort10p(d []time.Duration) time.Duration {
+	set := d[:int(float64(len(d))*0.1)]
+	if len(set) == 0 {
+		return time.Millisecond*0
+	}
+
 	var t time.Duration
 	var i int
-	for _, n := range d[:int(float64(len(d))*0.1)] {
+	for _, n := range set {
 		t += n
 		i++
 	}
