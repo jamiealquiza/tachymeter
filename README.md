@@ -27,4 +27,5 @@ Longest 10%:	25.997116ms
 Shortest 10%:	1.914673ms
 Max:			19.555149795s
 Min:			755.551µs
+Rate/sec.:	10.99
 ```
