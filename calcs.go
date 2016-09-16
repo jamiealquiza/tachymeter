@@ -35,8 +35,8 @@ func (m *Tachymeter) Calc() *Metrics {
 	metrics.Time.Total = calcTotal(m.Times)
 	metrics.Time.Avg = calcAvg(metrics.Time.Total, metrics.Samples)
 	metrics.Time.p95 = calcp95(m.Times)
-	metrics.Time.Long10p = calcLong10p(m.Times)
-	metrics.Time.Short10p = calcShort10p(m.Times)
+	metrics.Time.Long5p = calcLong5p(m.Times)
+	metrics.Time.Short5p = calcShort5p(m.Times)
 	metrics.Time.Max = m.Times[metrics.Samples-1]
 	metrics.Time.Min = m.Times[0]
 	rateTime := float64(metrics.Samples) / float64(metrics.Time.Total)
@@ -64,8 +64,8 @@ func calcp95(d []time.Duration) time.Duration {
 	return d[int(float64(len(d))*0.9)]
 }
 
-func calcLong10p(d []time.Duration) time.Duration {
-	set := d[:int(float64(len(d))*0.1)]
+func calcLong5p(d []time.Duration) time.Duration {
+	set := d[int(float64(len(d))*0.95):]
 	if len(set) == 0 {
 		return time.Millisecond*0
 	}
@@ -80,8 +80,8 @@ func calcLong10p(d []time.Duration) time.Duration {
 	return time.Duration(int(t) / i)
 }
 
-func calcShort10p(d []time.Duration) time.Duration {
-	set := d[:int(float64(len(d))*0.1)]
+func calcShort5p(d []time.Duration) time.Duration {
+	set := d[:int(float64(len(d))*0.05)]
 	if len(set) == 0 {
 		return time.Millisecond*0
 	}

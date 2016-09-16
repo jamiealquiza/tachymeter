@@ -28,8 +28,8 @@ type Metrics struct {
 		Avg      time.Duration
 		Median   time.Duration
 		p95      time.Duration
-		Long10p  time.Duration
-		Short10p time.Duration
+		Long5p  time.Duration
+		Short5p time.Duration
 		Max      time.Duration
 		Min      time.Duration
 	}
@@ -86,8 +86,8 @@ func (m *Tachymeter) Dump() {
 	fmt.Printf("Total:\t\t%s\n", metrics.Time.Total)
 	fmt.Printf("Avg.:\t\t%s\n", metrics.Time.Avg)
 	fmt.Printf("95%%ile:\t\t%s\n", metrics.Time.p95)
-	fmt.Printf("Longest 10%%:\t%s\n", metrics.Time.Long10p)
-	fmt.Printf("Shortest 10%%:\t%s\n", metrics.Time.Short10p)
+	fmt.Printf("Longest 5%%:\t%s\n", metrics.Time.Long10p)
+	fmt.Printf("Shortest 5%%:\t%s\n", metrics.Time.Short10p)
 	fmt.Printf("Max:\t\t%s\n", metrics.Time.Max)
 	fmt.Printf("Min:\t\t%s\n", metrics.Time.Min)
 	fmt.Printf("Rate/sec.:\t%.2f\n", metrics.Rate.Second)
