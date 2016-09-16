@@ -59,12 +59,13 @@ func (m *Tachymeter) AddTime(t time.Duration) {
 	// start overwriting.
 	if m.TimesPosition == len(m.Times) {
 		m.TimesPosition = 0
-		m.TimesUsed = len(m.Times)
 	}
 
 	m.Times[m.TimesPosition] = t
 	m.TimesPosition++
-	m.TimesUsed = m.TimesPosition
+	if m.TimesUsed < len(m.Times) {
+		m.TimesUsed++
+	}
 }
 
 // AddCount simply counts events.
