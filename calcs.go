@@ -37,6 +37,8 @@ func (m *Tachymeter) Calc() *Metrics {
 	metrics.Time.Short10p = calcShort10p(m.Times)
 	metrics.Time.Max = m.Times[len(m.Times)-1]
 	metrics.Time.Min = m.Times[0]
+	rateTime := float64(metrics.Count) / float64(metrics.Time.Total)
+	metrics.Rate.Second = rateTime*1e9
 
 	return metrics
 }

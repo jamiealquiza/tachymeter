@@ -32,6 +32,9 @@ type Metrics struct {
 		Max      time.Duration
 		Min      time.Duration
 	}
+	Rate struct {
+		Second float64
+	}
 	Samples int
 	Count   int
 }
@@ -83,4 +86,5 @@ func (m *Tachymeter) Dump() {
 	fmt.Printf("Shortest 10%%:\t%s\n", metrics.Time.Short10p)
 	fmt.Printf("Max:\t\t%s\n", metrics.Time.Max)
 	fmt.Printf("Min:\t\t%s\n", metrics.Time.Min)
+	fmt.Printf("Rate/sec.:\t%.2f\n", metrics.Rate.Second)
 }
