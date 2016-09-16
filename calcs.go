@@ -61,7 +61,7 @@ func calcAvg(d time.Duration, c int) time.Duration {
 }
 
 func calcp95(d []time.Duration) time.Duration {
-	return d[int(float64(len(d))*0.9)]
+	return d[int(float64(len(d))*0.95)]
 }
 
 func calcLong5p(d []time.Duration) time.Duration {
