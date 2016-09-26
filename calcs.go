@@ -62,20 +62,11 @@ func calcAvg(d time.Duration, c int) time.Duration {
 }
 
 func calcp95(d []time.Duration) time.Duration {
-	set := d[int(float64(len(d))*0.95):]
-
-	var t time.Duration
-	var i int
-	for _, n := range set {
-		t += n
-		i++
-	}
-
-	return time.Duration(int(t) / i)
+	return d[int(float64(len(d))*0.95)]
 }
 
 func calcLong5p(d []time.Duration) time.Duration {
-	set := d[:int(math.Ceil(float64(len(d))*0.05))]
+        set := d[int(float64(len(d))*0.95):]
 
 	var t time.Duration
 	var i int
@@ -88,10 +79,7 @@ func calcLong5p(d []time.Duration) time.Duration {
 }
 
 func calcShort5p(d []time.Duration) time.Duration {
-	set := d[:int(float64(len(d))*0.05)]
-	if len(set) == 0 {
-		return time.Millisecond * 0
-	}
+	set := d[:int(math.Ceil(float64(len(d))*0.05))]
 
 	var t time.Duration
 	var i int
