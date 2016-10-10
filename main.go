@@ -1,6 +1,7 @@
 package tachymeter
 
 import (
+	"encoding/json"
 	"fmt"
 	"sync"
 	"time"
@@ -78,6 +79,51 @@ func (m *Tachymeter) AddCount(i int) {
 	m.Count += i
 }
 
+func (m *Metrics) MarshalJSON() ([]byte, error) {
+	return json.Marshal(&struct {
+		Time struct {
+			Total   string
+			Avg     string
+			Median  string
+			p95     string
+			Long5p  string
+			Short5p string
+			Max    string
+			Min     string
+		}
+		Rate struct {
+			Second float64
+		}
+		Samples int
+		Count   int
+		}{
+			Time: struct{
+				Total   string
+				Avg     string
+				Median  string
+				p95     string
+				Long5p  string
+				Short5p string
+				Max    string
+				Min     string
+				}{
+				Total: m.Time.Total.String(),
+				Avg: m.Time.Avg.String(),
+				Median: m.Time.Median.String(),
+				p95: m.Time.p95.String(),
+				Long5p: m.Time.Long5p.String(),
+				Short5p: m.Time.Short5p.String(),
+				Max: m.Time.Max.String(),
+				Min: m.Time.Min.String(),
+			},
+			Rate: struct{Second float64} {
+				Second: m.Rate.Second,
+			},
+			Samples: m.Samples,
+			Count:	m.Count,
+		})
+}
+
 // Dump prints out a generic output of
 // all gathered metrics.
 func (m *Tachymeter) Dump() {
@@ -91,4 +137,11 @@ func (m *Tachymeter) Dump() {
 	fmt.Printf("Max:\t\t%s\n", metrics.Time.Max)
 	fmt.Printf("Min:\t\t%s\n", metrics.Time.Min)
 	fmt.Printf("Rate/sec.:\t%.2f\n", metrics.Rate.Second)
+}
+
+func (m *Tachymeter) Json() string {
+	metrics := m.Calc()
+	j, _ := json.Marshal(&metrics)
+
+	return string(j)
 }
