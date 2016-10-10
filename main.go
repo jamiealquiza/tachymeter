@@ -82,7 +82,7 @@ func (m *Tachymeter) AddCount(i int) {
 
 // Dump prints a formatted summary of tachymeter metrics.
 func (m *Tachymeter) Dump() {
-	metrics := m.calc()
+	metrics := m.Calc()
 	fmt.Printf("%d samples of %d events\n", metrics.Samples, metrics.Count)
 	fmt.Printf("Total:\t\t%s\n", metrics.Time.Total)
 	fmt.Printf("Avg.:\t\t%s\n", metrics.Time.Avg)
@@ -97,7 +97,7 @@ func (m *Tachymeter) Dump() {
 
 // Json returns a json string of tachymeter metrics.
 func (m *Tachymeter) Json() string {
-	metrics := m.calc()
+	metrics := m.Calc()
 	j, _ := json.Marshal(&metrics)
 
 	return string(j)
