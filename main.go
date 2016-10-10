@@ -49,6 +49,14 @@ func New(c *Config) *Tachymeter {
 	}
 }
 
+// Reset resets the counters / positions.
+func (m *Tachymeter) Reset() {
+	m.Lock()
+	defer m.Unlock()
+
+	m.TimesPosition, m.TimesUsed, m.Count = 0, 0, 0
+}
+
 // AddTime adds a time.Duration to tachymeter.
 func (m *Tachymeter) AddTime(t time.Duration) {
 	if m.Safe {
