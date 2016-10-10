@@ -27,10 +27,14 @@ func (m *Tachymeter) Calc() *Metrics {
 	m.Lock()
 	defer m.Unlock()
 
+	metrics := &Metrics{}
+	if m.Count == 0 {
+		return metrics
+	}
+
 	m.Times = m.Times[:m.TimesUsed]
 	sort.Sort(m.Times)
 
-	metrics := &Metrics{}
 	metrics.Samples = m.TimesUsed
 	metrics.Count = m.Count
 	metrics.Time.Total = calcTotal(m.Times)
