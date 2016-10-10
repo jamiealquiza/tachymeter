@@ -66,7 +66,7 @@ func calcp95(d []time.Duration) time.Duration {
 }
 
 func calcLong5p(d []time.Duration) time.Duration {
-        set := d[int(float64(len(d))*0.95):]
+	set := d[int(float64(len(d))*0.95):]
 
 	var t time.Duration
 	var i int

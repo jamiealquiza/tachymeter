@@ -24,14 +24,14 @@ type Tachymeter struct {
 
 type Metrics struct {
 	Time struct {
-		Total    time.Duration
-		Avg      time.Duration
-		Median   time.Duration
-		p95      time.Duration
+		Total   time.Duration
+		Avg     time.Duration
+		Median  time.Duration
+		p95     time.Duration
 		Long5p  time.Duration
 		Short5p time.Duration
-		Max      time.Duration
-		Min      time.Duration
+		Max     time.Duration
+		Min     time.Duration
 	}
 	Rate struct {
 		Second float64
