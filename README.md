@@ -1,5 +1,19 @@
 # tachymeter
-A simple latency summary library for Go
+
+Tachymeter simplifies the process of gathering summarized latency and rate statistics from a series of work. 
+
+After initializing a new `tachymeter`, latencies in the form of [`time.Duration`](https://golang.org/pkg/time/#Duration) that measure an event duration are added with the `AddTime()` function. Event counts, usually one per event duration, are added with the `AddCount()` function. Event counts may not correlate 1:1 with the number of event durations depending on what information is desired. For example, timing a function call and incrementing by 1 will yield latency and rates regarding making those function calls, whereas timing a single function call but incrementing by the *number of results returned* can be used to infer a different piece of information.
+
+Tachymeter is initialized with a Size parameter that specifies the max sample size that will be used in the calculation. This is done to control resource usage and minimise the impact of introducting tachymeter into your application (by avoiding slice appends, reducing sort times, etc.). If your actual event count is smaller than the tachymeter sample size, 100% of your data will be included. If the actual event count exceeds the tachymeter size, the oldest data will be overwritten.
+
+After all of the desired latencies have been gathered, tachymeter data can be gathered or viewed in several ways:
+ - Raw data accessible as a `tachymeter.Metrics`: `results := c.Calc`
+ - A json string: `results := c.Json()`
+ - Printing a pre-formatted output to console: `c.Dump()`
+
+# Example Usage
+
+See the [example](https://github.com/jamiealquiza/tachymeter/tree/master/example) file for a fully functioning example.
 
 ```go
 import "github.com/jamiealquiza/tachymeter"
