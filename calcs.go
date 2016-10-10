@@ -35,6 +35,7 @@ func (m *Tachymeter) Calc() *Metrics {
 	metrics.Count = m.Count
 	metrics.Time.Total = calcTotal(m.Times)
 	metrics.Time.Avg = calcAvg(metrics.Time.Total, metrics.Samples)
+	metrics.Time.Median = m.Times[len(m.Times)/2]
 	metrics.Time.p95 = calcp95(m.Times)
 	metrics.Time.Long5p = calcLong5p(m.Times)
 	metrics.Time.Short5p = calcShort5p(m.Times)

@@ -131,6 +131,7 @@ func (m *Tachymeter) Dump() {
 	fmt.Printf("%d samples of %d events\n", metrics.Samples, metrics.Count)
 	fmt.Printf("Total:\t\t%s\n", metrics.Time.Total)
 	fmt.Printf("Avg.:\t\t%s\n", metrics.Time.Avg)
+	fmt.Printf("Median: \t%s\n", metrics.Time.Median)
 	fmt.Printf("95%%ile:\t\t%s\n", metrics.Time.p95)
 	fmt.Printf("Longest 5%%:\t%s\n", metrics.Time.Long5p)
 	fmt.Printf("Shortest 5%%:\t%s\n", metrics.Time.Short5p)

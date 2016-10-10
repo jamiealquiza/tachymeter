@@ -5,9 +5,9 @@ A simple latency summary library for Go
 import "github.com/jamiealquiza/tachymeter"
 
 func main() {
-	c := tachymeter.New(&tachymeter.Config{Size: 500})
+	c := tachymeter.New(&tachymeter.Config{Size: 50})
 
-	for i := 0; i < 1000; i++ {
+	for i := 0; i < 100; i++ {
 		start := time.Now()
 		doSomeWork()
 		c.AddTime(time.Since(start))
@@ -19,13 +19,14 @@ func main() {
 ```
 
 ```
-500 samples of 1000 events
-Total:			45.466810987s
-Avg.:			4.546681ms
-95%ile:			2.612486ms
-Longest 5%:		25.997116ms
-Shortest 5%:	1.914673ms
-Max:			19.555149795s
-Min:			755.551µs
-Rate/sec.:		10.99
+50 samples of 100 events
+Total:			746.317344ms
+Avg.:			14.926346ms
+Median: 		13.902036ms
+95%ile:			30.33816ms
+Longest 5%:		31.541162ms
+Shortest 5%:	466.619µs
+Max:			32.146993ms
+Min:			3.444µs
+Rate/sec.:		67.00
 ```

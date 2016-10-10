@@ -9,7 +9,7 @@ import (
 )
 
 func main() {
-	c := tachymeter.New(&tachymeter.Config{Size: 100})
+	c := tachymeter.New(&tachymeter.Config{Size: 50})
 
 	for i := 0; i < 100; i++ {
 		start := time.Now()
