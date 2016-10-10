@@ -28,7 +28,7 @@ func main() {
 		c.AddCount(1)
 	}
 
-	c.Dump()
+	c.Calc().Dump()
 }
 ```
 

@@ -21,5 +21,5 @@ func main() {
 	results := c.Json()
 	fmt.Printf("%s\n\n", results)
 
-	c.Dump()
+	c.Calc().Dump()
 }

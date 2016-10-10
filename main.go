@@ -21,6 +21,7 @@ type Tachymeter struct {
 	TimesPosition int
 	TimesUsed     int
 	Count         int
+	WallTime      time.Duration
 }
 
 type Metrics struct {
@@ -88,19 +89,27 @@ func (m *Tachymeter) AddCount(i int) {
 	m.Count += i
 }
 
+func (m *Tachymeter) SetWallTime(t time.Duration) {
+	if m.Safe {
+		m.Lock()
+		defer m.Unlock()
+	}
+
+	m.WallTime = t
+}
+
 // Dump prints a formatted summary of tachymeter metrics.
-func (m *Tachymeter) Dump() {
-	metrics := m.Calc()
-	fmt.Printf("%d samples of %d events\n", metrics.Samples, metrics.Count)
-	fmt.Printf("Total:\t\t%s\n", metrics.Time.Total)
-	fmt.Printf("Avg.:\t\t%s\n", metrics.Time.Avg)
-	fmt.Printf("Median: \t%s\n", metrics.Time.Median)
-	fmt.Printf("95%%ile:\t\t%s\n", metrics.Time.p95)
-	fmt.Printf("Longest 5%%:\t%s\n", metrics.Time.Long5p)
-	fmt.Printf("Shortest 5%%:\t%s\n", metrics.Time.Short5p)
-	fmt.Printf("Max:\t\t%s\n", metrics.Time.Max)
-	fmt.Printf("Min:\t\t%s\n", metrics.Time.Min)
-	fmt.Printf("Rate/sec.:\t%.2f\n", metrics.Rate.Second)
+func (m *Metrics) Dump() {
+	fmt.Printf("%d samples of %d events\n", m.Samples, m.Count)
+	fmt.Printf("Total:\t\t%s\n", m.Time.Total)
+	fmt.Printf("Avg.:\t\t%s\n", m.Time.Avg)
+	fmt.Printf("Median: \t%s\n", m.Time.Median)
+	fmt.Printf("95%%ile:\t\t%s\n", m.Time.p95)
+	fmt.Printf("Longest 5%%:\t%s\n", m.Time.Long5p)
+	fmt.Printf("Shortest 5%%:\t%s\n", m.Time.Short5p)
+	fmt.Printf("Max:\t\t%s\n", m.Time.Max)
+	fmt.Printf("Min:\t\t%s\n", m.Time.Min)
+	fmt.Printf("Rate/sec.:\t%.2f\n", m.Rate.Second)
 }
 
 // Json returns a json string of tachymeter metrics.
@@ -122,7 +131,7 @@ func (m *Metrics) MarshalJSON() ([]byte, error) {
 			p95     string
 			Long5p  string
 			Short5p string
-			Max    string
+			Max     string
 			Min     string
 		}
 		Rate struct {
@@ -130,30 +139,30 @@ func (m *Metrics) MarshalJSON() ([]byte, error) {
 		}
 		Samples int
 		Count   int
+	}{
+		Time: struct {
+			Total   string
+			Avg     string
+			Median  string
+			p95     string
+			Long5p  string
+			Short5p string
+			Max     string
+			Min     string
 		}{
-			Time: struct{
-				Total   string
-				Avg     string
-				Median  string
-				p95     string
-				Long5p  string
-				Short5p string
-				Max    string
-				Min     string
-				}{
-				Total: m.Time.Total.String(),
-				Avg: m.Time.Avg.String(),
-				Median: m.Time.Median.String(),
-				p95: m.Time.p95.String(),
-				Long5p: m.Time.Long5p.String(),
-				Short5p: m.Time.Short5p.String(),
-				Max: m.Time.Max.String(),
-				Min: m.Time.Min.String(),
-			},
-			Rate: struct{Second float64} {
-				Second: m.Rate.Second,
-			},
-			Samples: m.Samples,
-			Count:	m.Count,
-		})
+			Total:   m.Time.Total.String(),
+			Avg:     m.Time.Avg.String(),
+			Median:  m.Time.Median.String(),
+			p95:     m.Time.p95.String(),
+			Long5p:  m.Time.Long5p.String(),
+			Short5p: m.Time.Short5p.String(),
+			Max:     m.Time.Max.String(),
+			Min:     m.Time.Min.String(),
+		},
+		Rate: struct{ Second float64 }{
+			Second: m.Rate.Second,
+		},
+		Samples: m.Samples,
+		Count:   m.Count,
+	})
 }
