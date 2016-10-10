@@ -23,7 +23,7 @@ func (p timeSlice) Swap(i, j int) {
 
 // Calc calcs data held in a *Tachymeter
 // and returns a *Metrics.
-func (m *Tachymeter) Calc() *Metrics {
+func (m *Tachymeter) calc() *Metrics {
 	m.Lock()
 	defer m.Unlock()
 

@@ -19,7 +19,7 @@ func main() {
 	}
 
 	results := c.Json()
-	fmt.Println(results)
+	fmt.Printf("%s\n\n", results)
 
 	c.Dump()
 }

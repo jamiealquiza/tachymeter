@@ -41,6 +41,7 @@ type Metrics struct {
 	Count   int
 }
 
+// New initializes a new tachymeter.
 func New(c *Config) *Tachymeter {
 	return &Tachymeter{
 		Times: make([]time.Duration, c.Size),
@@ -48,8 +49,7 @@ func New(c *Config) *Tachymeter {
 	}
 }
 
-// AddTime adds a time.Duration to the Tachymeter.Times
-// slice, then increments the position.
+// AddTime adds a time.Duration to tachymeter.
 func (m *Tachymeter) AddTime(t time.Duration) {
 	if m.Safe {
 		m.Lock()
@@ -69,7 +69,8 @@ func (m *Tachymeter) AddTime(t time.Duration) {
 	}
 }
 
-// AddCount simply counts events.
+// AddCount increments the tachymeter event
+// count by i.
 func (m *Tachymeter) AddCount(i int) {
 	if m.Safe {
 		m.Lock()
@@ -79,6 +80,31 @@ func (m *Tachymeter) AddCount(i int) {
 	m.Count += i
 }
 
+// Dump prints a formatted summary of tachymeter metrics.
+func (m *Tachymeter) Dump() {
+	metrics := m.calc()
+	fmt.Printf("%d samples of %d events\n", metrics.Samples, metrics.Count)
+	fmt.Printf("Total:\t\t%s\n", metrics.Time.Total)
+	fmt.Printf("Avg.:\t\t%s\n", metrics.Time.Avg)
+	fmt.Printf("Median: \t%s\n", metrics.Time.Median)
+	fmt.Printf("95%%ile:\t\t%s\n", metrics.Time.p95)
+	fmt.Printf("Longest 5%%:\t%s\n", metrics.Time.Long5p)
+	fmt.Printf("Shortest 5%%:\t%s\n", metrics.Time.Short5p)
+	fmt.Printf("Max:\t\t%s\n", metrics.Time.Max)
+	fmt.Printf("Min:\t\t%s\n", metrics.Time.Min)
+	fmt.Printf("Rate/sec.:\t%.2f\n", metrics.Rate.Second)
+}
+
+// Json returns a json string of tachymeter metrics.
+func (m *Tachymeter) Json() string {
+	metrics := m.calc()
+	j, _ := json.Marshal(&metrics)
+
+	return string(j)
+}
+
+// MarshalJSON defines the output formatting
+// for the Json() method.
 func (m *Metrics) MarshalJSON() ([]byte, error) {
 	return json.Marshal(&struct {
 		Time struct {
@@ -122,27 +148,4 @@ func (m *Metrics) MarshalJSON() ([]byte, error) {
 			Samples: m.Samples,
 			Count:	m.Count,
 		})
-}
-
-// Dump prints out a generic output of
-// all gathered metrics.
-func (m *Tachymeter) Dump() {
-	metrics := m.Calc()
-	fmt.Printf("%d samples of %d events\n", metrics.Samples, metrics.Count)
-	fmt.Printf("Total:\t\t%s\n", metrics.Time.Total)
-	fmt.Printf("Avg.:\t\t%s\n", metrics.Time.Avg)
-	fmt.Printf("Median: \t%s\n", metrics.Time.Median)
-	fmt.Printf("95%%ile:\t\t%s\n", metrics.Time.p95)
-	fmt.Printf("Longest 5%%:\t%s\n", metrics.Time.Long5p)
-	fmt.Printf("Shortest 5%%:\t%s\n", metrics.Time.Short5p)
-	fmt.Printf("Max:\t\t%s\n", metrics.Time.Max)
-	fmt.Printf("Min:\t\t%s\n", metrics.Time.Min)
-	fmt.Printf("Rate/sec.:\t%.2f\n", metrics.Rate.Second)
-}
-
-func (m *Tachymeter) Json() string {
-	metrics := m.Calc()
-	j, _ := json.Marshal(&metrics)
-
-	return string(j)
 }
