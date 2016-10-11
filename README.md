@@ -8,8 +8,8 @@ Tachymeter is initialized with a Size parameter that specifies the max sample si
 
 After all of the desired latencies have been gathered, tachymeter data can be gathered or viewed in several ways:
  - Raw data accessible as a `tachymeter.Metrics`: `results := c.Calc`
- - A json string: `results := c.Json()`
- - Printing a pre-formatted output to console: `c.Dump()`
+ - A json string: `jsonResults := c.Json()`
+ - Printing a pre-formatted output to console: `resultsc.Dump()`
 
 # Example Usage
 
