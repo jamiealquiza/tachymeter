@@ -34,13 +34,13 @@ func main() {
 
 ```
 50 samples of 100 events
-Total:			746.317344ms
-Avg.:			14.926346ms
-Median: 		13.902036ms
-95%ile:			30.33816ms
-Longest 5%:		31.541162ms
-Shortest 5%:	466.619µs
-Max:			32.146993ms
-Min:			3.444µs
-Rate/sec.:		67.00
+Total:			1.463173043s
+Avg.:			29.26346ms
+Median: 		12.037232ms
+95%ile:			27.036779ms
+Longest 5%:		27.402056ms
+Shortest 5%:	383.674µs
+Max:			28.024171ms
+Min:			391ns
+Rate/sec.:		68.34
 ```
