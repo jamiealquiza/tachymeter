@@ -17,6 +17,7 @@ type timeSlice []time.Duration
 type Tachymeter struct {
 	sync.Mutex
 	Safe          bool
+	TimeTotal     time.Duration
 	Times         timeSlice
 	TimesPosition int
 	TimesUsed     int
@@ -64,6 +65,9 @@ func (m *Tachymeter) AddTime(t time.Duration) {
 		m.Lock()
 		defer m.Unlock()
 	}
+
+	// Add to total time.
+	m.TimeTotal += t
 
 	// If we're at the end, rollover and
 	// start overwriting.
