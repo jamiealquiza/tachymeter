@@ -38,7 +38,7 @@ func (m *Tachymeter) Calc() *Metrics {
 	metrics.Samples = m.TimesUsed
 	metrics.Count = m.Count
 	metrics.Time.Total = m.TimeTotal
-	metrics.Time.Avg = calcAvg(metrics.Time.Total, metrics.Samples)
+	metrics.Time.Avg = calcAvg(m.Times, metrics.Samples)
 	metrics.Time.Median = m.Times[len(m.Times)/2]
 	metrics.Time.p95 = calcp95(m.Times)
 	metrics.Time.Long5p = calcLong5p(m.Times)
@@ -59,8 +59,12 @@ func (m *Tachymeter) Calc() *Metrics {
 
 // These should be self-explanatory:
 
-func calcAvg(d time.Duration, c int) time.Duration {
-	return time.Duration(int(d) / c)
+func calcAvg(d []time.Duration, c int) time.Duration {
+	var total time.Duration
+	for _, t := range d {
+		total += t
+	}
+	return time.Duration(int(total) / c)
 }
 
 func calcp95(d []time.Duration) time.Duration {
