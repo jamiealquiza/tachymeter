@@ -32,19 +32,19 @@ func (m *Tachymeter) Calc() *Metrics {
 		return metrics
 	}
 
-	m.Times = m.Times[:m.TimesUsed]
-	sort.Sort(m.Times)
+	times := m.Times[:m.TimesUsed]
+	sort.Sort(times)
 
 	metrics.Samples = m.TimesUsed
 	metrics.Count = m.Count
 	metrics.Time.Total = m.TimeTotal
-	metrics.Time.Avg = calcAvg(m.Times, metrics.Samples)
-	metrics.Time.Median = m.Times[len(m.Times)/2]
-	metrics.Time.p95 = calcp95(m.Times)
-	metrics.Time.Long5p = calcLong5p(m.Times)
-	metrics.Time.Short5p = calcShort5p(m.Times)
-	metrics.Time.Max = m.Times[metrics.Samples-1]
-	metrics.Time.Min = m.Times[0]
+	metrics.Time.Avg = calcAvg(times, metrics.Samples)
+	metrics.Time.Median = times[len(times)/2]
+	metrics.Time.p95 = calcp95(times)
+	metrics.Time.Long5p = calcLong5p(times)
+	metrics.Time.Short5p = calcShort5p(times)
+	metrics.Time.Max = times[metrics.Samples-1]
+	metrics.Time.Min = times[0]
 
 	var rateTime float64
 	if m.WallTime != 0 {
