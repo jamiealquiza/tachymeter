@@ -57,6 +57,7 @@ func (m *Tachymeter) Reset() {
 	defer m.Unlock()
 
 	m.TimesPosition, m.TimesUsed, m.Count = 0, 0, 0
+	m.TimeTotal = time.Duration(0)
 }
 
 // AddTime adds a time.Duration to tachymeter.
