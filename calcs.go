@@ -1,7 +1,6 @@
 package tachymeter
 
 import (
-	"math"
 	"sort"
 	"time"
 )
@@ -77,11 +76,11 @@ func calcAvg(d []time.Duration, c int) time.Duration {
 }
 
 func calcp95(d []time.Duration) time.Duration {
-	return d[int(float64(len(d))*0.95)]
+	return d[int(float64(len(d))*0.95+0.5)]
 }
 
 func calcLong5p(d []time.Duration) time.Duration {
-	set := d[int(float64(len(d))*0.95):]
+	set := d[int(float64(len(d))*0.95+0.5):]
 
 	var t time.Duration
 	var i int
@@ -94,7 +93,7 @@ func calcLong5p(d []time.Duration) time.Duration {
 }
 
 func calcShort5p(d []time.Duration) time.Duration {
-	set := d[:int(math.Ceil(float64(len(d))*0.05))]
+	set := d[:int(float64(len(d))*0.05+0.5)]
 
 	var t time.Duration
 	var i int
