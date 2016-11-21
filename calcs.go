@@ -80,9 +80,9 @@ func calcP95(d []time.Duration) time.Duration {
 }
 
 func calcLong5p(d []time.Duration) time.Duration {
-	set := d[int(float64(len(d))*0.95+0.5)-1:]
+	set := d[int(float64(len(d))*0.95+0.5):]
 
-	if len(set) == 0 {
+	if len(set) <= 1 {
 		return d[len(d)-1]
 	}
 
@@ -99,7 +99,7 @@ func calcLong5p(d []time.Duration) time.Duration {
 func calcShort5p(d []time.Duration) time.Duration {
 	set := d[:int(float64(len(d))*0.05+0.5)]
 
-	if len(set) == 0 {
+	if len(set) <= 1 {
 		return d[0]
 	}
 
