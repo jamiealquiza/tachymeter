@@ -37,7 +37,7 @@ func (m *Tachymeter) Calc() *Metrics {
 
 	metrics.Samples = m.TimesUsed
 	metrics.Count = m.Count
-	metrics.Time.Total = m.TimeTotal
+	metrics.Time.Total = calcTimeTotal(times)
 	metrics.Time.Avg = calcAvg(times, metrics.Samples)
 	metrics.Time.Median = times[len(times)/2]
 	metrics.Time.p95 = calcp95(times)
@@ -50,7 +50,7 @@ func (m *Tachymeter) Calc() *Metrics {
 	if m.WallTime != 0 {
 		rateTime = float64(metrics.Count) / float64(m.WallTime)
 	} else {
-		rateTime = float64(metrics.Count) / float64(metrics.Time.Total)
+		rateTime = float64(metrics.Samples) / float64(metrics.Time.Total)
 	}
 	metrics.Rate.Second = rateTime * 1e9
 
@@ -58,6 +58,15 @@ func (m *Tachymeter) Calc() *Metrics {
 }
 
 // These should be self-explanatory:
+
+func calcTimeTotal(d []time.Duration) time.Duration {
+	var total time.Duration
+	for _, t := range d {
+		total += t
+	}
+
+	return total
+}
 
 func calcAvg(d []time.Duration, c int) time.Duration {
 	var total time.Duration

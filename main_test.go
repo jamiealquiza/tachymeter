@@ -1,8 +1,8 @@
 package tachymeter_test
 
 import (
-	"time"
 	"testing"
+	"time"
 
 	"github.com/jamiealquiza/tachymeter"
 )
@@ -25,9 +25,6 @@ func TestReset(t *testing.T) {
 	if ta.Count != 0 {
 		t.Fail()
 	}
-	if ta.TimeTotal != 0 {
-		t.Fail()
-	}
 }
 
 func TestAddTime(t *testing.T) {
@@ -35,7 +32,7 @@ func TestAddTime(t *testing.T) {
 
 	ta.AddTime(time.Millisecond)
 
-	if ta.TimeTotal != time.Millisecond {
+	if ta.Times[0] != time.Millisecond {
 		t.Fail()
 	}
 }
