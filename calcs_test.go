@@ -1,0 +1,163 @@
+package tachymeter_test
+
+import (
+	//"fmt"
+	"testing"
+	"time"
+
+	"github.com/jamiealquiza/tachymeter"
+)
+
+func TestCalc(t *testing.T) {
+	ta := tachymeter.New(&tachymeter.Config{Size: 30})
+
+	// These end up overwritten; we're
+	// putting 32 events in a size 30 Tachymeter.
+	ta.AddTime(12 * time.Millisecond)
+	ta.AddCount(1)
+	ta.AddTime(96 * time.Millisecond)
+	ta.AddCount(1)
+
+	ta.AddTime(9 * time.Millisecond)
+	ta.AddCount(1)
+	ta.AddTime(4 * time.Millisecond)
+	ta.AddCount(1)
+	ta.AddTime(88 * time.Millisecond)
+	ta.AddCount(1)
+	ta.AddTime(37 * time.Millisecond)
+	ta.AddCount(1)
+	ta.AddTime(42 * time.Millisecond)
+	ta.AddCount(1)
+	ta.AddTime(77 * time.Millisecond)
+	ta.AddCount(1)
+	ta.AddTime(93 * time.Millisecond)
+	ta.AddCount(1)
+	ta.AddTime(89 * time.Millisecond)
+	ta.AddCount(1)
+	ta.AddTime(12 * time.Millisecond)
+	ta.AddCount(1)
+	ta.AddTime(36 * time.Millisecond)
+	ta.AddCount(1)
+	ta.AddTime(54 * time.Millisecond)
+	ta.AddCount(1)
+	ta.AddTime(21 * time.Millisecond)
+	ta.AddCount(1)
+	ta.AddTime(17 * time.Millisecond)
+	ta.AddCount(1)
+	ta.AddTime(14 * time.Millisecond)
+	ta.AddCount(1)
+	ta.AddTime(67 * time.Millisecond)
+	ta.AddCount(1)
+
+	ta.AddTime(9 * time.Millisecond)
+	ta.AddCount(1)
+	ta.AddTime(4 * time.Millisecond)
+	ta.AddCount(1)
+	ta.AddTime(88 * time.Millisecond)
+	ta.AddCount(1)
+	ta.AddTime(37 * time.Millisecond)
+	ta.AddCount(1)
+	ta.AddTime(42 * time.Millisecond)
+	ta.AddCount(1)
+	ta.AddTime(77 * time.Millisecond)
+	ta.AddCount(1)
+	ta.AddTime(93 * time.Millisecond)
+	ta.AddCount(1)
+	ta.AddTime(89 * time.Millisecond)
+	ta.AddCount(1)
+	ta.AddTime(12 * time.Millisecond)
+	ta.AddCount(1)
+	ta.AddTime(36 * time.Millisecond)
+	ta.AddCount(1)
+	ta.AddTime(54 * time.Millisecond)
+	ta.AddCount(1)
+	ta.AddTime(21 * time.Millisecond)
+	ta.AddCount(1)
+	ta.AddTime(17 * time.Millisecond)
+	ta.AddCount(1)
+	ta.AddTime(14 * time.Millisecond)
+	ta.AddCount(1)
+	ta.AddTime(67 * time.Millisecond)
+	ta.AddCount(1)
+
+	metrics := ta.Calc()
+
+	if metrics.Samples != 30 {
+		t.Error("Expected 30, got ", metrics.Samples)
+	}
+
+	if metrics.Count != 32 {
+		t.Error("Expected 32, got ", metrics.Count)
+	}
+
+	expectedDurs := []time.Duration{
+		4000000,
+		4000000,
+		9000000,
+		9000000,
+		12000000,
+		12000000,
+		14000000,
+		14000000,
+		17000000,
+		17000000,
+		21000000,
+		21000000,
+		36000000,
+		36000000,
+		37000000,
+		37000000,
+		42000000,
+		42000000,
+		54000000,
+		54000000,
+		67000000,
+		67000000,
+		77000000,
+		77000000,
+		88000000,
+		88000000,
+		89000000,
+		89000000,
+		93000000,
+		93000000,
+	}
+
+	for n, d := range ta.Times {
+		if d != expectedDurs[n] {
+			t.Errorf("Expected %d, got %d\n", expectedDurs[n], d)
+		}
+	}
+
+	if metrics.Time.Total != 1320000000 {
+		t.Errorf("Expected 1320000000, got %d\n", metrics.Time.Total)
+	}
+
+	if metrics.Time.Avg != 44000000 {
+		t.Errorf("Expected 44000000, got %d\n", metrics.Time.Avg)
+	}
+
+	if metrics.Time.Median != 37000000 {
+		t.Errorf("Expected 37000000, got %d\n", metrics.Time.Median)
+	}
+
+	if metrics.Time.P95 != 93000000 {
+		t.Errorf("Expected 93000000, got %d\n", metrics.Time.P95)
+	}
+
+	if metrics.Time.Long5p != 93000000 {
+		t.Errorf("Expected 93000000, got %d\n", metrics.Time.Long5p)
+	}
+
+	if metrics.Time.Short5p != 4000000 {
+		t.Errorf("Expected 4000000, got %d\n", metrics.Time.Short5p)
+	}
+
+	if metrics.Time.Max != 93000000 {
+		t.Errorf("Expected 93000000, got %d\n", metrics.Time.Max)
+	}
+
+	if metrics.Time.Min != 4000000 {
+		t.Errorf("Expected 4000000, got %d\n", metrics.Time.Min)
+	}
+}
