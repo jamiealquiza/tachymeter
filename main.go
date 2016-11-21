@@ -29,7 +29,7 @@ type Metrics struct {
 		Total   time.Duration
 		Avg     time.Duration
 		Median  time.Duration
-		p95     time.Duration
+		P95     time.Duration
 		Long5p  time.Duration
 		Short5p time.Duration
 		Max     time.Duration
@@ -104,7 +104,7 @@ func (m *Metrics) Dump() {
 	fmt.Printf("Total:\t\t%s\n", m.Time.Total)
 	fmt.Printf("Avg.:\t\t%s\n", m.Time.Avg)
 	fmt.Printf("Median: \t%s\n", m.Time.Median)
-	fmt.Printf("95%%ile:\t\t%s\n", m.Time.p95)
+	fmt.Printf("95%%ile:\t\t%s\n", m.Time.P95)
 	fmt.Printf("Longest 5%%:\t%s\n", m.Time.Long5p)
 	fmt.Printf("Shortest 5%%:\t%s\n", m.Time.Short5p)
 	fmt.Printf("Max:\t\t%s\n", m.Time.Max)
@@ -128,7 +128,7 @@ func (m *Metrics) MarshalJSON() ([]byte, error) {
 			Total   string
 			Avg     string
 			Median  string
-			p95     string
+			P95     string
 			Long5p  string
 			Short5p string
 			Max     string
@@ -144,7 +144,7 @@ func (m *Metrics) MarshalJSON() ([]byte, error) {
 			Total   string
 			Avg     string
 			Median  string
-			p95     string
+			P95     string
 			Long5p  string
 			Short5p string
 			Max     string
@@ -153,7 +153,7 @@ func (m *Metrics) MarshalJSON() ([]byte, error) {
 			Total:   m.Time.Total.String(),
 			Avg:     m.Time.Avg.String(),
 			Median:  m.Time.Median.String(),
-			p95:     m.Time.p95.String(),
+			P95:     m.Time.P95.String(),
 			Long5p:  m.Time.Long5p.String(),
 			Short5p: m.Time.Short5p.String(),
 			Max:     m.Time.Max.String(),
