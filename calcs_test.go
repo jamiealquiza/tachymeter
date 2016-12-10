@@ -141,8 +141,20 @@ func TestCalc(t *testing.T) {
 		t.Errorf("Expected 37000000, got %d\n", metrics.Time.P50)
 	}
 
+	if metrics.Time.P75 != 77000000 {
+		t.Errorf("Expected 77000000, got %d\n", metrics.Time.P75)
+	}
+
 	if metrics.Time.P95 != 93000000 {
 		t.Errorf("Expected 93000000, got %d\n", metrics.Time.P95)
+	}
+
+	if metrics.Time.P99 != 93000000 {
+		t.Errorf("Expected 93000000, got %d\n", metrics.Time.P99)
+	}
+
+	if metrics.Time.P999 != 93000000 {
+		t.Errorf("Expected 93000000, got %d\n", metrics.Time.P999)
 	}
 
 	if metrics.Time.Long5p != 93000000 {
