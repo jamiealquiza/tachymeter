@@ -78,10 +78,6 @@ func calcAvg(d []time.Duration, c int) time.Duration {
 	return time.Duration(int(total) / c)
 }
 
-func calcP95(d []time.Duration) time.Duration {
-	return d[int(float64(len(d))*0.95+0.5)-1]
-}
-
 func calcP(d []time.Duration, p float64) time.Duration {
 	return d[int(float64(len(d))*p+0.5)-1]
 }
