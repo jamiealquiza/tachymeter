@@ -36,10 +36,13 @@ func (m *Tachymeter) Calc() *Metrics {
 
 	metrics.Samples = m.TimesUsed
 	metrics.Count = m.Count
-	metrics.Time.Total = calcTimeTotal(times)
+	metrics.Time.Cumulative = calcTimeCumulative(times)
 	metrics.Time.Avg = calcAvg(times, metrics.Samples)
-	metrics.Time.Median = times[len(times)/2]
-	metrics.Time.P95 = calcP95(times)
+	metrics.Time.P50 = times[len(times)/2]
+	metrics.Time.P75 = calcP(times, 0.75)
+	metrics.Time.P95 = calcP(times, 0.95)
+	metrics.Time.P99 = calcP(times, 0.99)
+	metrics.Time.P999 = calcP(times, 0.999)
 	metrics.Time.Long5p = calcLong5p(times)
 	metrics.Time.Short5p = calcShort5p(times)
 	metrics.Time.Max = times[metrics.Samples-1]
@@ -49,7 +52,7 @@ func (m *Tachymeter) Calc() *Metrics {
 	if m.WallTime != 0 {
 		rateTime = float64(metrics.Count) / float64(m.WallTime)
 	} else {
-		rateTime = float64(metrics.Samples) / float64(metrics.Time.Total)
+		rateTime = float64(metrics.Samples) / float64(metrics.Time.Cumulative)
 	}
 	metrics.Rate.Second = rateTime * 1e9
 
@@ -58,7 +61,7 @@ func (m *Tachymeter) Calc() *Metrics {
 
 // These should be self-explanatory:
 
-func calcTimeTotal(d []time.Duration) time.Duration {
+func calcTimeCumulative(d []time.Duration) time.Duration {
 	var total time.Duration
 	for _, t := range d {
 		total += t
@@ -77,6 +80,10 @@ func calcAvg(d []time.Duration, c int) time.Duration {
 
 func calcP95(d []time.Duration) time.Duration {
 	return d[int(float64(len(d))*0.95+0.5)-1]
+}
+
+func calcP(d []time.Duration, p float64) time.Duration {
+	return d[int(float64(len(d))*p+0.5)-1]
 }
 
 func calcLong5p(d []time.Duration) time.Duration {

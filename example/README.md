@@ -5,16 +5,19 @@
 ### Run
 ```
 $ $GOPATH/bin/example
-{"Time":{"Total":"1.463173043s","Avg":"29.26346ms","Median":"12.037232ms","Long5p":"27.402056ms","Short5p":"383.674µs","Max":"28.024171ms","Min":"391ns"},"Rate":{"Second":68.34461616034571},"Samples":50,"Count":100}
+{"Time":{"Cumulative":"649.553805ms","Avg":"12.991076ms","P50":"12.062832ms","P75":"18.256032ms","P95":"27.175521ms","P99":"28.182451ms","P999":"28.182451ms","Long5p":"28.170356ms","Short5p":"416.962µs","Max":"28.182451ms","Min":"2.24µs"},"Rate":{"Second":76.97591733759454},"Samples":50,"Count":100}
 
 50 samples of 100 events
-Total:			1.463173043s
-Avg.:			29.26346ms
-Median: 		12.037232ms
-95%ile:			27.036779ms
-Longest 5%:		27.402056ms
-Shortest 5%:	383.674µs
-Max:			28.024171ms
-Min:			391ns
-Rate/sec.:		68.34
+Cumulative:	649.553805ms
+Avg.:		12.991076ms
+p50: 		12.062832ms
+p75:		18.256032ms
+p95:		27.175521ms
+p99:		28.182451ms
+p999:		28.182451ms
+Long 5%:	28.170356ms
+Short 5%:	416.962µs
+Max:		28.182451ms
+Min:		2.24µs
+Rate/sec.:	76.98
 ```

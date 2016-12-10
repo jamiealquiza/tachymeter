@@ -129,16 +129,16 @@ func TestCalc(t *testing.T) {
 		}
 	}
 
-	if metrics.Time.Total != 1320000000 {
-		t.Errorf("Expected 1320000000, got %d\n", metrics.Time.Total)
+	if metrics.Time.Cumulative != 1320000000 {
+		t.Errorf("Expected 1320000000, got %d\n", metrics.Time.Cumulative)
 	}
 
 	if metrics.Time.Avg != 44000000 {
 		t.Errorf("Expected 44000000, got %d\n", metrics.Time.Avg)
 	}
 
-	if metrics.Time.Median != 37000000 {
-		t.Errorf("Expected 37000000, got %d\n", metrics.Time.Median)
+	if metrics.Time.P50 != 37000000 {
+		t.Errorf("Expected 37000000, got %d\n", metrics.Time.P50)
 	}
 
 	if metrics.Time.P95 != 93000000 {

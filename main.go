@@ -26,14 +26,17 @@ type Tachymeter struct {
 
 type Metrics struct {
 	Time struct {
-		Total   time.Duration
-		Avg     time.Duration
-		Median  time.Duration
-		P95     time.Duration
-		Long5p  time.Duration
-		Short5p time.Duration
-		Max     time.Duration
-		Min     time.Duration
+		Cumulative time.Duration
+		Avg        time.Duration
+		P50        time.Duration
+		P75        time.Duration
+		P95        time.Duration
+		P99        time.Duration
+		P999       time.Duration
+		Long5p     time.Duration
+		Short5p    time.Duration
+		Max        time.Duration
+		Min        time.Duration
 	}
 	Rate struct {
 		Second float64
@@ -101,12 +104,15 @@ func (m *Tachymeter) SetWallTime(t time.Duration) {
 // Dump prints a formatted summary of tachymeter metrics.
 func (m *Metrics) Dump() {
 	fmt.Printf("%d samples of %d events\n", m.Samples, m.Count)
-	fmt.Printf("Total:\t\t%s\n", m.Time.Total)
+	fmt.Printf("Cumulative:\t%s\n", m.Time.Cumulative)
 	fmt.Printf("Avg.:\t\t%s\n", m.Time.Avg)
-	fmt.Printf("Median: \t%s\n", m.Time.Median)
-	fmt.Printf("95%%ile:\t\t%s\n", m.Time.P95)
-	fmt.Printf("Longest 5%%:\t%s\n", m.Time.Long5p)
-	fmt.Printf("Shortest 5%%:\t%s\n", m.Time.Short5p)
+	fmt.Printf("p50: \t\t%s\n", m.Time.P50)
+	fmt.Printf("p75:\t\t%s\n", m.Time.P75)
+	fmt.Printf("p95:\t\t%s\n", m.Time.P95)
+	fmt.Printf("p99:\t\t%s\n", m.Time.P99)
+	fmt.Printf("p999:\t\t%s\n", m.Time.P999)
+	fmt.Printf("Long 5%%:\t%s\n", m.Time.Long5p)
+	fmt.Printf("Short 5%%:\t%s\n", m.Time.Short5p)
 	fmt.Printf("Max:\t\t%s\n", m.Time.Max)
 	fmt.Printf("Min:\t\t%s\n", m.Time.Min)
 	fmt.Printf("Rate/sec.:\t%.2f\n", m.Rate.Second)
@@ -125,14 +131,17 @@ func (m *Tachymeter) Json() string {
 func (m *Metrics) MarshalJSON() ([]byte, error) {
 	return json.Marshal(&struct {
 		Time struct {
-			Total   string
-			Avg     string
-			Median  string
-			P95     string
-			Long5p  string
-			Short5p string
-			Max     string
-			Min     string
+			Cumulative string
+			Avg        string
+			P50        string
+			P75        string
+			P95        string
+			P99        string
+			P999       string
+			Long5p     string
+			Short5p    string
+			Max        string
+			Min        string
 		}
 		Rate struct {
 			Second float64
@@ -141,23 +150,29 @@ func (m *Metrics) MarshalJSON() ([]byte, error) {
 		Count   int
 	}{
 		Time: struct {
-			Total   string
-			Avg     string
-			Median  string
-			P95     string
-			Long5p  string
-			Short5p string
-			Max     string
-			Min     string
+			Cumulative string
+			Avg        string
+			P50        string
+			P75        string
+			P95        string
+			P99        string
+			P999       string
+			Long5p     string
+			Short5p    string
+			Max        string
+			Min        string
 		}{
-			Total:   m.Time.Total.String(),
-			Avg:     m.Time.Avg.String(),
-			Median:  m.Time.Median.String(),
-			P95:     m.Time.P95.String(),
-			Long5p:  m.Time.Long5p.String(),
-			Short5p: m.Time.Short5p.String(),
-			Max:     m.Time.Max.String(),
-			Min:     m.Time.Min.String(),
+			Cumulative: m.Time.Cumulative.String(),
+			Avg:        m.Time.Avg.String(),
+			P50:        m.Time.P50.String(),
+			P75:        m.Time.P75.String(),
+			P95:        m.Time.P95.String(),
+			P99:        m.Time.P99.String(),
+			P999:       m.Time.P999.String(),
+			Long5p:     m.Time.Long5p.String(),
+			Short5p:    m.Time.Short5p.String(),
+			Max:        m.Time.Max.String(),
+			Min:        m.Time.Min.String(),
 		},
 		Rate: struct{ Second float64 }{
 			Second: m.Rate.Second,

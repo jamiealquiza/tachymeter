@@ -34,13 +34,16 @@ func main() {
 
 ```
 50 samples of 100 events
-Total:			1.463173043s
-Avg.:			29.26346ms
-Median: 		12.037232ms
-95%ile:			27.036779ms
-Longest 5%:		27.402056ms
-Shortest 5%:	383.674µs
-Max:			28.024171ms
-Min:			391ns
-Rate/sec.:		68.34
+Cumulative:	649.553805ms
+Avg.:		12.991076ms
+p50: 		12.062832ms
+p75:		18.256032ms
+p95:		27.175521ms
+p99:		28.182451ms
+p999:		28.182451ms
+Long 5%:	28.170356ms
+Short 5%:	416.962µs
+Max:		28.182451ms
+Min:		2.24µs
+Rate/sec.:	76.98
 ```
