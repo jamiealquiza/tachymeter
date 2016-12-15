@@ -1,15 +1,17 @@
 # tachymeter
 
-Tachymeter simplifies the process of measuring and summarizing rate and latency data from a series of work.
+Tachymeter simplifies the process of measuring and summarizing rate and latency data from a series of events.
 
-After initializing a new `tachymeter`, latencies in the form of [`time.Duration`](https://golang.org/pkg/time/#Duration) that measure an event duration are added with the `AddTime()` function. Event counts, usually one per event duration, are added with the `AddCount()` function. Event counts may not correlate 1:1 with the number of event durations depending on what information is desired. For example, timing a function call and incrementing by 1 will yield latency and rates regarding making those function calls, whereas timing a single function call but incrementing by the *number of results returned* can be used to infer a different piece of information.
-
-Tachymeter is initialized with a Size parameter that specifies the max sample size that will be used in the calculation. This is done to control resource usage and minimise the impact of introducting tachymeter into your application (by favoring fixed-size slices with indexed inserts rather than appends, limiting sort times, etc.). If your actual event count is smaller than the tachymeter sample size, 100% of your data will be included. If the actual event count exceeds the tachymeter size, the oldest data will be overwritten (this results in a last-window sample; sampling configuration will eventually be added).
+Latencies in the form of [`time.Duration`](https://golang.org/pkg/time/#Duration) that measure an event duration are added to a tachymeter instance using the `AddTime()` method.
 
 After all desired latencies have been gathered, tachymeter data can be retrieved in several ways:
  - Raw data accessible as a `tachymeter.Metrics`: `results := c.Calc`
  - A json string: `jsonResults := c.Json()`
  - Printing a pre-formatted output to console: `results.Dump()`
+
+Tachymeter is initialized with a Size parameter that specifies the max sample size that will be used in the calculation. This is done to control resource usage and minimise the impact of introducting tachymeter into your application (by favoring fixed-size slices with indexed inserts rather than appends, limiting sort times, etc.). If your actual event count is smaller than the tachymeter sample size, 100% of your data will be included. If the actual event count exceeds the tachymeter size, the oldest data will be overwritten (this results in a last-window sample; sampling configuration will eventually be added).
+
+
 
 # Example Usage
 
@@ -47,3 +49,14 @@ Max:		28.182451ms
 Min:		2.24µs
 Rate/sec.:	76.98
 ```
+
+### Output Descriptions
+
+- `Cumulative`: Aggregate of all sample durations.
+- `Avg.`: Average event duration per sample.
+- `p<N>`: Nth %ile.
+- `Long 5%`: Average event duration of the longest 5%.
+- `Short 5%`: Average event duration of the shortest 5%.
+- `Max`: Max observed event duration.
+- `Min`: Min observed event duration.
+- `Rate/sec.`: Per-second rate based on cumulative time and sample count.
