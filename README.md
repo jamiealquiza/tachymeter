@@ -27,7 +27,6 @@ func main() {
 		start := time.Now()
 		doSomeWork()
 		c.AddTime(time.Since(start))
-		c.AddCount(1)
 	}
 
 	c.Calc().Dump()
