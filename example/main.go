@@ -15,7 +15,6 @@ func main() {
 		start := time.Now()
 		time.Sleep(time.Duration(rand.Intn(30)) * time.Millisecond)
 		c.AddTime(time.Since(start))
-		c.AddCount(1)
 	}
 
 	results := c.Json()

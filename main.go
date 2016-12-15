@@ -79,26 +79,8 @@ func (m *Tachymeter) AddTime(t time.Duration) {
 	if m.TimesUsed < len(m.Times) {
 		m.TimesUsed++
 	}
-}
 
-// AddCount increments the tachymeter event
-// count by i.
-func (m *Tachymeter) AddCount(i int) {
-	if m.Safe {
-		m.Lock()
-		defer m.Unlock()
-	}
-
-	m.Count += i
-}
-
-func (m *Tachymeter) SetWallTime(t time.Duration) {
-	if m.Safe {
-		m.Lock()
-		defer m.Unlock()
-	}
-
-	m.WallTime = t
+	m.Count++
 }
 
 // Dump prints a formatted summary of tachymeter metrics.

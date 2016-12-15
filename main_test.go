@@ -13,7 +13,6 @@ func TestReset(t *testing.T) {
 	ta.AddTime(time.Second)
 	ta.AddTime(time.Second)
 	ta.AddTime(time.Second)
-	ta.AddCount(3)
 	ta.Reset()
 
 	if ta.TimesPosition != 0 {
@@ -33,26 +32,6 @@ func TestAddTime(t *testing.T) {
 	ta.AddTime(time.Millisecond)
 
 	if ta.Times[0] != time.Millisecond {
-		t.Fail()
-	}
-}
-
-func TestAddCount(t *testing.T) {
-	ta := tachymeter.New(&tachymeter.Config{Size: 3})
-
-	ta.AddCount(3)
-
-	if ta.Count != 3 {
-		t.Fail()
-	}
-}
-
-func TestSetWallTime(t *testing.T) {
-	ta := tachymeter.New(&tachymeter.Config{Size: 3})
-
-	ta.SetWallTime(time.Millisecond)
-
-	if ta.WallTime != time.Millisecond {
 		t.Fail()
 	}
 }

@@ -48,12 +48,7 @@ func (m *Tachymeter) Calc() *Metrics {
 	metrics.Time.Max = times[metrics.Samples-1]
 	metrics.Time.Min = times[0]
 
-	var rateTime float64
-	if m.WallTime != 0 {
-		rateTime = float64(metrics.Count) / float64(m.WallTime)
-	} else {
-		rateTime = float64(metrics.Samples) / float64(metrics.Time.Cumulative)
-	}
+	rateTime := float64(metrics.Samples) / float64(metrics.Time.Cumulative)
 	metrics.Rate.Second = rateTime * 1e9
 
 	return metrics
