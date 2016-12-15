@@ -83,6 +83,15 @@ func (m *Tachymeter) AddTime(t time.Duration) {
 	m.Count++
 }
 
+func (m *Tachymeter) SetWallTime(t time.Duration) {
+	if m.Safe {
+		m.Lock()
+		defer m.Unlock()
+	}
+
+	m.WallTime = t
+}
+
 // Dump prints a formatted summary of tachymeter metrics.
 func (m *Metrics) Dump() {
 	fmt.Printf("%d samples of %d events\n", m.Samples, m.Count)

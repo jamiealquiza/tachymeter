@@ -35,3 +35,13 @@ func TestAddTime(t *testing.T) {
 		t.Fail()
 	}
 }
+
+func TestSetWallTime(t *testing.T) {
+	ta := tachymeter.New(&tachymeter.Config{Size: 3})
+
+	ta.SetWallTime(time.Millisecond)
+
+	if ta.WallTime != time.Millisecond {
+		t.Fail()
+	}
+}
