@@ -59,3 +59,47 @@ Rate/sec.:	76.98
 - `Max`: Max observed event duration.
 - `Min`: Min observed event duration.
 - `Rate/sec.`: Per-second rate based on cumulative time and sample count.
+
+# Accurate Rates With Parallelism
+
+By default, tachymeter calcualtes rate based on the number of events possible per-second according to average event duration. This model doesn't work in asynchronous or parallelized scenarios since events may be overlapping in time. For example, with many Goroutines writing durations to a shared tachymeter in parallel, the global rate must be determined by using the total event count over the total wall time elapsed.
+
+Tachymeter exposes a `SetWallTime` method (and additionally a `Safe` config for thread safety) that does just this if a duration is supplied.
+
+Example:
+
+```go
+<...>
+
+func main() {
+    // Initialize tachymeter in Safe mode.
+    c := tachymeter.New(&tachymeter.Config{Size: 50, Safe: true})
+    // Start wall time for all Goroutines.
+    wallTimeStart := time.Now()
+    var wg sync.WaitGroup
+    
+    // Run tasks asynchronously.
+    for i := 0; i < 5; i++ {
+    	wg.Add(1)
+        go someTask(t, wg)
+    }
+    
+    wg.Wait()
+    // When finished, set elapsed wall time.
+    t.SetWallTime(time.Since(wallTimeStart))
+    
+    // Rate outputs will be accurate.
+    fmt.Println(t.Calc().Dump())
+}
+
+func someTask(t *tachymeter.Tachymeter, wg *sync.WaitGroup) {
+	defer wg.Done()
+	start := time.Now()
+	
+	// Task we're timing happens here.
+	
+	t.AddTime(time.Since(start))
+}
+
+<...>
+```
