@@ -1,3 +1,5 @@
+[![GoDoc](https://godoc.org/github.com/jamiealquiza/tachymeter?status.svg)](https://godoc.org/github.com/jamiealquiza/tachymeter)
+
 # tachymeter
 
 Tachymeter simplifies the process of measuring and summarizing rate and latency data from a series of events.
