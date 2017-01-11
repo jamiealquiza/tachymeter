@@ -7,13 +7,23 @@ import (
 	"time"
 )
 
+// Config holds tachymeter initialization
+// parameters. Size defines the sample capacity,
+// Safe specifies whether or not concurrent access
+// is guarded (in extremely high rate event metering,
+// safe mode uses mutexes that would introduces small latencies,
+// thus configurable if thread safety is not needed).
 type Config struct {
 	Size int
 	Safe bool // Optionally lock if concurrent access is needed.
 }
 
+// timeslice is used to hold time.Duration values.
 type timeSlice []time.Duration
 
+// Tachymeter provides methods to collect
+// sample durations and produce summarized
+// latecy / rate output.
 type Tachymeter struct {
 	sync.Mutex
 	Safe          bool
@@ -24,6 +34,8 @@ type Tachymeter struct {
 	WallTime      time.Duration
 }
 
+// Metrics holds the calculated outputs
+// produced from a Tachymeter sample set.
 type Metrics struct {
 	Time struct {
 		Cumulative time.Duration
@@ -45,7 +57,7 @@ type Metrics struct {
 	Count   int
 }
 
-// New initializes a new tachymeter.
+// New initializes a new Tachymeter.
 func New(c *Config) *Tachymeter {
 	return &Tachymeter{
 		Times: make([]time.Duration, c.Size),
@@ -53,7 +65,8 @@ func New(c *Config) *Tachymeter {
 	}
 }
 
-// Reset resets the counters / positions.
+// Reset resets a Tachymeter
+// instance for reuse.
 func (m *Tachymeter) Reset() {
 	if m.Safe {
 		m.Lock()
@@ -63,7 +76,7 @@ func (m *Tachymeter) Reset() {
 	m.TimesPosition, m.TimesUsed, m.Count = 0, 0, 0
 }
 
-// AddTime adds a time.Duration to tachymeter.
+// AddTime adds a time.Duration to Tachymeter.
 func (m *Tachymeter) AddTime(t time.Duration) {
 	if m.Safe {
 		m.Lock()
@@ -85,6 +98,10 @@ func (m *Tachymeter) AddTime(t time.Duration) {
 	m.Count++
 }
 
+// SetWallTime optionally sets an elapsed wall time duration.
+// This affects rate output by using total events counted over time.
+// This is useful for concurrent/parallelized events that overlap
+// in wall time and are writing to a shared Tachymeter instance.
 func (m *Tachymeter) SetWallTime(t time.Duration) {
 	if m.Safe {
 		m.Lock()
@@ -94,7 +111,7 @@ func (m *Tachymeter) SetWallTime(t time.Duration) {
 	m.WallTime = t
 }
 
-// Dump prints a formatted summary of tachymeter metrics.
+// Dump prints a formatted Metrics output to console.
 func (m *Metrics) Dump() {
 	fmt.Printf("%d samples of %d events\n", m.Samples, m.Count)
 	fmt.Printf("Cumulative:\t%s\n", m.Time.Cumulative)
@@ -111,7 +128,8 @@ func (m *Metrics) Dump() {
 	fmt.Printf("Rate/sec.:\t%.2f\n", m.Rate.Second)
 }
 
-// Json returns a json string of tachymeter metrics.
+// Json calls the Calc method on a Tachymeter
+// instance and returns a json string of the output.
 func (m *Tachymeter) Json() string {
 	metrics := m.Calc()
 	j, _ := json.Marshal(&metrics)
@@ -120,7 +138,8 @@ func (m *Tachymeter) Json() string {
 }
 
 // MarshalJSON defines the output formatting
-// for the Json() method.
+// for the Json() method. This is exported as a
+// requirement but not intended for end users.
 func (m *Metrics) MarshalJSON() ([]byte, error) {
 	return json.Marshal(&struct {
 		Time struct {

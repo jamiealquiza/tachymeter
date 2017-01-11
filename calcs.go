@@ -20,8 +20,8 @@ func (p timeSlice) Swap(i, j int) {
 	p[i], p[j] = p[j], p[i]
 }
 
-// Calc calcs data held in a *Tachymeter
-// and returns a *Metrics.
+// Calc summarizes Tachymeter sample data
+// and returns it in the form of a *Metrics.
 func (m *Tachymeter) Calc() *Metrics {
 	m.Lock()
 	defer m.Unlock()
