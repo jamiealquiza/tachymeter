@@ -4,6 +4,7 @@ import (
 	//"fmt"
 	"testing"
 	"time"
+	"sort"
 
 	"github.com/jamiealquiza/tachymeter"
 )
@@ -90,6 +91,8 @@ func TestCalc(t *testing.T) {
 		93000000,
 		93000000,
 	}
+
+	sort.Sort(ta.Times)
 
 	for n, d := range ta.Times {
 		if d != expectedDurs[n] {

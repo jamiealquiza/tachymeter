@@ -15,9 +15,6 @@ func TestReset(t *testing.T) {
 	ta.AddTime(time.Second)
 	ta.Reset()
 
-	if ta.TimesPosition != 0 {
-		t.Fail()
-	}
 	if ta.TimesUsed != 0 {
 		t.Fail()
 	}
