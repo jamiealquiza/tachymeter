@@ -47,12 +47,12 @@ type timeSlice []time.Duration
 // latecy / rate output.
 type Tachymeter struct {
 	sync.Mutex
-	Safe          bool
-	Times         timeSlice
-	TimesPosition int
-	TimesUsed     int
-	Count         int
-	WallTime      time.Duration
+	Safe      bool
+	Size      int
+	Times     timeSlice
+	TimesUsed int
+	Count     int
+	WallTime  time.Duration
 }
 
 // Metrics holds the calculated outputs
@@ -81,8 +81,9 @@ type Metrics struct {
 // New initializes a new Tachymeter.
 func New(c *Config) *Tachymeter {
 	return &Tachymeter{
-		Times: make([]time.Duration, c.Size),
 		Safe:  c.Safe,
+		Size:  c.Size,
+		Times: make([]time.Duration, c.Size),
 	}
 }
 
@@ -94,7 +95,7 @@ func (m *Tachymeter) Reset() {
 		defer m.Unlock()
 	}
 
-	m.TimesPosition, m.TimesUsed, m.Count = 0, 0, 0
+	m.TimesUsed, m.Count = 0, 0
 }
 
 // AddTime adds a time.Duration to Tachymeter.
@@ -104,15 +105,9 @@ func (m *Tachymeter) AddTime(t time.Duration) {
 		defer m.Unlock()
 	}
 
-	// If we're at the end, rollover and
-	// start overwriting.
-	if m.TimesPosition == len(m.Times) {
-		m.TimesPosition = 0
-	}
+	m.Times[m.Count%m.Size] = t
 
-	m.Times[m.TimesPosition] = t
-	m.TimesPosition++
-	if m.TimesUsed < len(m.Times) {
+	if m.TimesUsed < m.Size {
 		m.TimesUsed++
 	}
 

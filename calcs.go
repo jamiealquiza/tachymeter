@@ -52,7 +52,8 @@ func (m *Tachymeter) Calc() *Metrics {
 		return metrics
 	}
 
-	times := m.Times[:m.TimesUsed]
+	times := make(timeSlice, m.TimesUsed)
+	copy(times, m.Times[:m.TimesUsed])
 	sort.Sort(times)
 
 	metrics.Samples = m.TimesUsed
