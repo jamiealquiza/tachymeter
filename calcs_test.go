@@ -2,9 +2,9 @@ package tachymeter_test
 
 import (
 	//"fmt"
+	"sort"
 	"testing"
 	"time"
-	"sort"
 
 	"github.com/jamiealquiza/tachymeter"
 )

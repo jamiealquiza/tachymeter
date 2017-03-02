@@ -22,7 +22,9 @@
 package tachymeter
 
 import (
+	"math"
 	"sort"
+	"sync/atomic"
 	"time"
 )
 
@@ -44,21 +46,31 @@ func (p timeSlice) Swap(i, j int) {
 // Calc summarizes Tachymeter sample data
 // and returns it in the form of a *Metrics.
 func (m *Tachymeter) Calc() *Metrics {
-	m.Lock()
-	defer m.Unlock()
-
 	metrics := &Metrics{}
 	if m.Count == 0 {
 		return metrics
 	}
 
-	times := make(timeSlice, m.TimesUsed)
-	copy(times, m.Times[:m.TimesUsed])
+	m.Lock()
+
+	metrics.Samples = int(math.Min(float64(atomic.LoadUint64(&m.Count)), float64(m.Size)))
+	metrics.Count = int(atomic.LoadUint64(&m.Count))
+	times := make(timeSlice, metrics.Samples)
+	copy(times, m.Times[:metrics.Samples])
 	sort.Sort(times)
 
-	metrics.Samples = m.TimesUsed
-	metrics.Count = m.Count
 	metrics.Time.Cumulative = calcTimeCumulative(times)
+	var rateTime float64
+	if m.WallTime != 0 {
+		rateTime = float64(metrics.Count) / float64(m.WallTime)
+	} else {
+		rateTime = float64(metrics.Samples) / float64(metrics.Time.Cumulative)
+	}
+
+	metrics.Rate.Second = rateTime * 1e9
+
+	m.Unlock()
+
 	metrics.Time.Avg = calcAvg(times, metrics.Samples)
 	metrics.Time.P50 = times[len(times)/2]
 	metrics.Time.P75 = calcP(times, 0.75)
@@ -69,15 +81,6 @@ func (m *Tachymeter) Calc() *Metrics {
 	metrics.Time.Short5p = calcShort5p(times)
 	metrics.Time.Max = times[metrics.Samples-1]
 	metrics.Time.Min = times[0]
-
-	var rateTime float64
-	if m.WallTime != 0 {
-		rateTime = float64(metrics.Count) / float64(m.WallTime)
-	} else {
-		rateTime = float64(metrics.Samples) / float64(metrics.Time.Cumulative)
-	}
-
-	metrics.Rate.Second = rateTime * 1e9
 
 	return metrics
 }
