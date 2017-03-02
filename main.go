@@ -25,6 +25,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"sync"
+	"sync/atomic"
 	"time"
 )
 
@@ -36,7 +37,7 @@ import (
 // thus configurable if thread safety is not needed).
 type Config struct {
 	Size int
-	Safe bool // Optionally lock if concurrent access is needed.
+	Safe bool // Optionally lock if concurrent access is needed. Deprecated.
 }
 
 // timeslice is used to hold time.Duration values.
@@ -47,12 +48,11 @@ type timeSlice []time.Duration
 // latecy / rate output.
 type Tachymeter struct {
 	sync.Mutex
-	Safe      bool
-	Size      int
-	Times     timeSlice
-	TimesUsed int
-	Count     int
-	WallTime  time.Duration
+	Safe     bool
+	Size     uint64
+	Times    timeSlice
+	Count    uint64
+	WallTime time.Duration
 }
 
 // Metrics holds the calculated outputs
@@ -82,7 +82,7 @@ type Metrics struct {
 func New(c *Config) *Tachymeter {
 	return &Tachymeter{
 		Safe:  c.Safe,
-		Size:  c.Size,
+		Size:  uint64(c.Size),
 		Times: make([]time.Duration, c.Size),
 	}
 }
@@ -90,28 +90,14 @@ func New(c *Config) *Tachymeter {
 // Reset resets a Tachymeter
 // instance for reuse.
 func (m *Tachymeter) Reset() {
-	if m.Safe {
-		m.Lock()
-		defer m.Unlock()
-	}
-
-	m.TimesUsed, m.Count = 0, 0
+	m.Lock()
+	atomic.StoreUint64(&m.Count, 0)
+	m.Unlock()
 }
 
 // AddTime adds a time.Duration to Tachymeter.
 func (m *Tachymeter) AddTime(t time.Duration) {
-	if m.Safe {
-		m.Lock()
-		defer m.Unlock()
-	}
-
-	m.Times[m.Count%m.Size] = t
-
-	if m.TimesUsed < m.Size {
-		m.TimesUsed++
-	}
-
-	m.Count++
+	m.Times[(atomic.AddUint64(&m.Count, 1)-1)%m.Size] = t
 }
 
 // SetWallTime optionally sets an elapsed wall time duration.
@@ -119,11 +105,6 @@ func (m *Tachymeter) AddTime(t time.Duration) {
 // This is useful for concurrent/parallelized events that overlap
 // in wall time and are writing to a shared Tachymeter instance.
 func (m *Tachymeter) SetWallTime(t time.Duration) {
-	if m.Safe {
-		m.Lock()
-		defer m.Unlock()
-	}
-
 	m.WallTime = t
 }
 
