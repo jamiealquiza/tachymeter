@@ -30,14 +30,11 @@ import (
 )
 
 // Config holds tachymeter initialization
-// parameters. Size defines the sample capacity,
-// Safe specifies whether or not concurrent access
-// is guarded (in extremely high rate event metering,
-// safe mode uses mutexes that would introduces small latencies,
-// thus configurable if thread safety is not needed).
+// parameters. Size defines the sample capacity.
+// Tachymeter is thread safe.
 type Config struct {
 	Size int
-	Safe bool // Optionally lock if concurrent access is needed. Deprecated.
+	Safe bool // Deprecated. Flag held on to as to not break existing users.
 }
 
 // timeslice is used to hold time.Duration values.
@@ -48,7 +45,6 @@ type timeSlice []time.Duration
 // latecy / rate output.
 type Tachymeter struct {
 	sync.Mutex
-	Safe     bool
 	Size     uint64
 	Times    timeSlice
 	Count    uint64
@@ -81,7 +77,6 @@ type Metrics struct {
 // New initializes a new Tachymeter.
 func New(c *Config) *Tachymeter {
 	return &Tachymeter{
-		Safe:  c.Safe,
 		Size:  uint64(c.Size),
 		Times: make([]time.Duration, c.Size),
 	}
