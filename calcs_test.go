@@ -144,6 +144,10 @@ func TestCalc(t *testing.T) {
 		t.Errorf("Expected 4000000, got %d\n", metrics.Time.Min)
 	}
 
+	if metrics.Time.Range != 89000000 {
+		t.Errorf("Expected 89000000, got %d\n", metrics.Time.Range)
+	}
+
 	if metrics.Rate.Second != 22.72727272727273 {
 		t.Errorf("Expected 22.73, got %0.2f\n", metrics.Rate.Second)
 	}

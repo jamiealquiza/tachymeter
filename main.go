@@ -66,6 +66,7 @@ type Metrics struct {
 		Short5p    time.Duration
 		Max        time.Duration
 		Min        time.Duration
+		Range      time.Duration
 	}
 	Rate struct {
 		Second float64
@@ -117,6 +118,7 @@ func (m *Metrics) Dump() {
 	fmt.Printf("Short 5%%:\t%s\n", m.Time.Short5p)
 	fmt.Printf("Max:\t\t%s\n", m.Time.Max)
 	fmt.Printf("Min:\t\t%s\n", m.Time.Min)
+	fmt.Printf("Range:\t\t%s\n", m.Time.Range)
 	fmt.Printf("Rate/sec.:\t%.2f\n", m.Rate.Second)
 }
 
@@ -146,6 +148,7 @@ func (m *Metrics) MarshalJSON() ([]byte, error) {
 			Short5p    string
 			Max        string
 			Min        string
+			Range      string
 		}
 		Rate struct {
 			Second float64
@@ -165,6 +168,7 @@ func (m *Metrics) MarshalJSON() ([]byte, error) {
 			Short5p    string
 			Max        string
 			Min        string
+			Range      string
 		}{
 			Cumulative: m.Time.Cumulative.String(),
 			Avg:        m.Time.Avg.String(),
@@ -177,6 +181,7 @@ func (m *Metrics) MarshalJSON() ([]byte, error) {
 			Short5p:    m.Time.Short5p.String(),
 			Max:        m.Time.Max.String(),
 			Min:        m.Time.Min.String(),
+			Range:      m.Time.Range.String(),
 		},
 		Rate: struct{ Second float64 }{
 			Second: m.Rate.Second,

@@ -81,6 +81,7 @@ func (m *Tachymeter) Calc() *Metrics {
 	metrics.Time.Short5p = calcShort5p(times)
 	metrics.Time.Max = times[metrics.Samples-1]
 	metrics.Time.Min = times[0]
+	metrics.Time.Range = metrics.Time.Max - metrics.Time.Min
 
 	return metrics
 }
