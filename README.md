@@ -37,18 +37,19 @@ func main() {
 
 ```
 50 samples of 100 events
-Cumulative:	649.553805ms
-Avg.:		12.991076ms
-p50: 		12.062832ms
-p75:		18.256032ms
-p95:		27.175521ms
-p99:		28.182451ms
-p999:		28.182451ms
-Long 5%:	28.170356ms
-Short 5%:	416.962µs
-Max:		28.182451ms
-Min:		2.24µs
-Rate/sec.:	76.98
+Cumulative:     705.24222ms
+Avg.:           14.104844ms
+p50:            13.073198ms
+p75:            21.358238ms
+p95:            28.289403ms
+p99:            30.544326ms
+p999:           30.544326ms
+Long 5%:        29.843555ms
+Short 5%:       356.145µs
+Max:            30.544326ms
+Min:            2.455µs
+Range:          30.541871ms
+Rate/sec.:      70.90
 ```
 
 ### Output Descriptions
@@ -60,6 +61,7 @@ Rate/sec.:	76.98
 - `Short 5%`: Average event duration of the shortest 5%.
 - `Max`: Max observed event duration.
 - `Min`: Min observed event duration.
+- `Range`: The delta between the max and min sample time
 - `Rate/sec.`: Per-second rate based on cumulative time and sample count.
 
 # Accurate Rates With Parallelism
