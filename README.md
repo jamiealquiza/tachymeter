@@ -2,16 +2,16 @@
 
 # tachymeter
 
-Tachymeter simplifies the process of creating summarized rate and latency information from a series of timed events: "In this loop with 1,000 iterations, what was the 95%ile and lowest observed latency? What was the per-second rate?". 
+Tachymeter simplifies the process of creating summarized rate and latency information from a series of timed events: "In this loop with 1,000 database calls, what was the 95%ile and lowest observed latency? What was the per-second rate?". 
 
-Latencies in the form of [`time.Duration`](https://golang.org/pkg/time/#Duration) that measure an event duration are added to a tachymeter instance using the `AddTime()` method.
+Event durations in the form of [`time.Duration`](https://golang.org/pkg/time/#Duration) are added to a tachymeter instance using the `AddTime()` method.
 
-After all desired latencies have been gathered, tachymeter data can be retrieved in several ways:
- - Raw data accessible as a `tachymeter.Metrics`: `results := c.Calc`
+After all desired timings have been gathered, tachymeter output can be retrieved in several ways:
+ - A `tachymeter.Metrics` for direct access: `results := c.Calc` -> `fmt.Printf("Median latency: %s\n", results.Time.P50)`
  - A json string: `jsonResults := c.Json()`
  - Printing a pre-formatted output to console: `results.Dump()`
 
-Tachymeter is initialized with a Size parameter that specifies the max sample size that will be used in the calculation. This is done to control resource usage and minimise the impact of introducting tachymeter into your application (by favoring fixed-size slices with indexed inserts rather than appends, limiting sort times, etc.). If your actual event count is smaller than the tachymeter sample size, 100% of your data will be included. If the actual event count exceeds the tachymeter size, the oldest data will be overwritten (this results in a last-window sample; sampling configuration will eventually be added).
+Tachymeter is initialized with a Size parameter that specifies the max sample size that will be used in the calculation. This is done to control resource usage and minimise the impact of introducting tachymeter into your application (by favoring fixed-size slices with indexed inserts rather than appends, limiting sort times, etc.); the `AddTime` method is o(1) @ ~20ns on modern hardware. If your actual event count is smaller than or equal to the tachymeter sample size, all of the meaused events will be included. If the event count exceeds the tachymeter size, the oldest data will be overwritten (this results in a last-window sample; sampling configuration will eventually be added).
 
 
 
