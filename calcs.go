@@ -97,6 +97,7 @@ func calcHgram(b int, t timeSlice, low, max, r time.Duration) []map[string]int {
 	interval := time.Duration(int64(r) / int64(b))
 	high := low + interval
 	hgram := []map[string]int{}
+	pos := 1 // Bucket position.
 
 	bstring := fmt.Sprintf("%s-%s", low, high)
 	bucket := map[string]int{}
@@ -113,8 +114,11 @@ func calcHgram(b int, t timeSlice, low, max, r time.Duration) []map[string]int {
 
 			// Update the high/low range values.
 			low = high + time.Nanosecond
+
 			high += interval
-			if high > max {
+			// if we're going into the
+			// last bucket, set high to max.
+			if pos == b-1 {
 				high = max
 			}
 
@@ -124,6 +128,8 @@ func calcHgram(b int, t timeSlice, low, max, r time.Duration) []map[string]int {
 			// bucket, so the new bucket count should
 			// be incremented.
 			bucket[bstring]++
+
+			pos++
 		}
 	}
 
