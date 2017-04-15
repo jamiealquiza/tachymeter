@@ -2,7 +2,7 @@
 
 # tachymeter
 
-Tachymeter simplifies the process of creating summarized rate and latency information from a series of timed events: "In this loop with 1,000 database calls, what was the 95%ile and lowest observed latency? What was the per-second rate?". 
+Tachymeter simplifies the process of creating summarized rate and latency information from a series of timed events: "In this loop with 1,000 database calls, what was the 95%ile and lowest observed latency? What was the per-second rate?"
 
 Event durations in the form of [`time.Duration`](https://golang.org/pkg/time/#Duration) are added to a tachymeter instance using the `AddTime()` method.
 
