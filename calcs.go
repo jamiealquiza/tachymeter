@@ -22,6 +22,7 @@
 package tachymeter
 
 import (
+	"fmt"
 	"math"
 	"sort"
 	"sync/atomic"
@@ -83,7 +84,52 @@ func (m *Tachymeter) Calc() *Metrics {
 	metrics.Time.Min = times[0]
 	metrics.Time.Range = metrics.Time.Max - metrics.Time.Min
 
+	metrics.Histogram = calcHgram(m.HBuckets, times, metrics.Time.Min, metrics.Time.Max, metrics.Time.Range)
+
 	return metrics
+}
+
+// calcHgram returns a histogram of event durations t in b buckets.
+// A histogram bucket is a map["low-high duration"]count of events that
+// fall within the low / high range.
+func calcHgram(b int, t timeSlice, low, max, r time.Duration) []map[string]int {
+	// Interval is the time range / n buckets.
+	interval := time.Duration(int64(r) / int64(b))
+	high := low + interval
+	hgram := []map[string]int{}
+
+	bstring := fmt.Sprintf("%s-%s", low, high)
+	bucket := map[string]int{}
+
+	for _, v := range t {
+		// If v fits in the current bucket,
+		// increment the bucket count.
+		if v <= high {
+			bucket[bstring]++
+		} else {
+			// If not, prepare the next bucket.
+			hgram = append(hgram, bucket)
+			bucket = map[string]int{}
+
+			// Update the high/low range values.
+			low = high + time.Nanosecond
+			high += interval
+			if high > max {
+				high = max
+			}
+
+			bstring = fmt.Sprintf("%s - %s", low, high)
+
+			// The value didn't fit in the previous
+			// bucket, so the new bucket count should
+			// be incremented.
+			bucket[bstring]++
+		}
+	}
+
+	hgram = append(hgram, bucket)
+
+	return hgram
 }
 
 // These should be self-explanatory:
