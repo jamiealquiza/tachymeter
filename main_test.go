@@ -7,6 +7,30 @@ import (
 	"github.com/jamiealquiza/tachymeter"
 )
 
+func BenchmarkAddTime(b *testing.B) {
+	b.StopTimer()
+
+	ta := tachymeter.New(&tachymeter.Config{Size: b.N})
+	d := time.Millisecond
+
+	b.StartTimer()
+	for i := 0; i < b.N; i++ {
+		ta.AddTime(d)
+	}
+}
+
+func BenchmarkAddTimeSampling(b *testing.B) {
+	b.StopTimer()
+
+	ta := tachymeter.New(&tachymeter.Config{Size: 100})
+	d := time.Millisecond
+
+	b.StartTimer()
+	for i := 0; i < b.N; i++ {
+		ta.AddTime(d)
+	}
+}
+
 func TestReset(t *testing.T) {
 	ta := tachymeter.New(&tachymeter.Config{Size: 3})
 
