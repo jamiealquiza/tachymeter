@@ -2,23 +2,59 @@
  - `$ go get github.com/jamiealquiza/tachymeter`
  - `$ go install github.com/jamiealquiza/tachymeter/example`
 
-### Run
+
+### Example code
+```go
+package main
+
+import (
+	"fmt"
+	"math/rand"
+	"time"
+
+	"github.com/jamiealquiza/tachymeter"
+)
+
+func main() {
+	c := tachymeter.New(&tachymeter.Config{Size: 50})
+
+	for i := 0; i < 100; i++ {
+		start := time.Now()
+		time.Sleep(time.Duration(rand.Intn(30)) * time.Millisecond)
+		c.AddTime(time.Since(start))
+	}
+
+	resultsj := c.Json()
+	fmt.Printf("%s\n\n", resultsj)
+
+	results := c.Calc()
+	// Print the pre-formatted console output.
+	results.Dump()
+	// Create an HTML graph of the event histogram.
+	results.DumpHistogramGraph()
+}
+```
+
+### Output
 ```
 $ $GOPATH/bin/example
-{"Time":{"Cumulative":"705.24222ms","Avg":"14.104844ms","P50":"13.073198ms","P75":"21.358238ms","P95":"28.289403ms","P99":"30.544326ms","P999":"30.544326ms","Long5p":"29.843555ms","Short5p":"356.145µs","Max":"30.544326ms","Min":"2.455µs","Range":"30.541871ms"},"Rate":{"Second":70.89762720104873},"Samples":50,"Count":100}
+{"Time":{"Cumulative":"700.215421ms","Avg":"14.004308ms","P50":"12.990493ms","P75":"20.061121ms","P95":"30.612424ms","P99":"31.925942ms","P999":"31.925942ms","Long5p":"31.87406ms","Short5p":"465.319µs","Max":"31.925942ms","Min":"2.8µs","Range":"31.923142ms"},"Rate":{"Second":71.40659645654962},"Samples":50,"Count":100,"Histogram":[{"2.8µs-3.195114ms":5},{"3.195115ms - 6.387428ms":4},{"6.387429ms - 9.579742ms":9},{"9.579743ms - 12.772056ms":7},{"12.772057ms - 15.96437ms":7},{"15.964371ms - 19.156684ms":3},{"19.156685ms - 22.348998ms":5},{"22.348999ms - 25.541312ms":3},{"25.541313ms - 28.733626ms":3},{"28.733627ms - 31.92594ms":3},{"31.925941ms - 31.925942ms":1}]}
 
 50 samples of 100 events
-Cumulative:     705.24222ms
-Avg.:           14.104844ms
-p50:            13.073198ms
-p75:            21.358238ms
-p95:            28.289403ms
-p99:            30.544326ms
-p999:           30.544326ms
-Long 5%:        29.843555ms
-Short 5%:       356.145µs
-Max:            30.544326ms
-Min:            2.455µs
-Range:          30.541871ms
-Rate/sec.:      70.90
+Cumulative:     700.215421ms
+Avg.:           14.004308ms
+p50:            12.990493ms
+p75:            20.061121ms
+p95:            30.612424ms
+p99:            31.925942ms
+p999:           31.925942ms
+Long 5%:        31.87406ms
+Short 5%:       465.319µs
+Max:            31.925942ms
+Min:            2.8µs
+Range:          31.923142ms
+Rate/sec.:      71.41
 ```
+
+# HTML histogram output
+![ss](https://cloud.githubusercontent.com/assets/4108044/25065346/a7f23398-21cb-11e7-8d39-c97a1ea4d136.png)
