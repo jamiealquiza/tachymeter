@@ -24,5 +24,8 @@ func main() {
 	// Print the pre-formatted console output.
 	results.Dump()
 	// Create an HTML graph of the event histogram.
-	results.DumpHistogramGraph()
+	//results.DumpHistogramGraph()
+	w := tachymeter.Timeline{}
+	w.AddEvent(results)
+	w.WriteHtml()
 }

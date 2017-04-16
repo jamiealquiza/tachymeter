@@ -1,7 +1,12 @@
 package tachymeter
 
+const (
+	tab string = `	`
+	nl string = "\n"
+)
+
 var (
-	template = `<!doctype html>
+	head = `<!doctype html>
 <html>
 
 <head>
@@ -26,12 +31,18 @@ var (
 
 <body>
 
-    <div id="container">
-        <canvas id="canvas"></canvas>
-    </div>
+`
+
+	container = `
+
+	<div id="container">
+        <canvas id="canvas-XCANVASID"></canvas>
+    </div>`
+
+   graph = `
 
 	<script>
-	var ctx = document.getElementById("canvas");
+	var ctx = document.getElementById("canvas-XCANVASID");
 	var myChart = new Chart(ctx, {
 	    type: 'bar',
 	    data: {
@@ -54,6 +65,9 @@ var (
 	});
 	</script>
 
-</body>
-</html>`
+`
+
+	tail = "</body>\n</html>"
+
+	template = head+container+graph+tail
 )
