@@ -61,22 +61,23 @@ Rate/sec.:      70.90
 
 After all desired timings have been gathered, the `Calc()` is called, returning a [`*Metrics`](https://godoc.org/github.com/jamiealquiza/tachymeter#Metrics). The results held by a `*Metrics` can be accessed in several ways (where `t` represents a tachymeter instance):
 
-- `tachymeter.Metrics` for direct access:
+### `tachymeter.Metrics` for direct access
 ```golang
 results := t.Calc
 fmt.Printf("Median latency: %s\n", results.Time.P50)
 ```
 
- - JSON string: `jsonResults := c.Json()`
+### JSON string
  ```golang
 results := t.Json()
 fmt.Printf("%s\n\n", results)
 ```
- - Printing pre-formatted output to console:
+### Printing pre-formatted output to console
  ```golang
  t.results.Dump()`
  ```
 
+### HTML histogram
  Tachymeter `*Metrics` results also have to ability to create HTML histograms. The `WriteHtml(p string)` method is called where `p` is an output path where the HTML file should be written.
 
  ```golang
