@@ -31,7 +31,10 @@ func main() {
 	// Print the pre-formatted console output.
 	results.Dump()
 	// Create an HTML graph of the event histogram.
-	results.DumpHistogramGraph()
+	err := results.WriteHtml(".")
+	if err != nil {
+		fmt.Println(err)
+	}
 }
 ```
 
