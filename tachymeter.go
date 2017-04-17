@@ -24,8 +24,6 @@ package tachymeter
 import (
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
-	"strings"
 	"sync"
 	"sync/atomic"
 	"time"
@@ -117,33 +115,12 @@ func (m *Tachymeter) SetWallTime(t time.Duration) {
 	m.WallTime = t
 }
 
-// DumpHistogramGraph writes a histograph
+// WriteHtml writes a histograph
 // html file to the cwd.
-func (m *Metrics) DumpHistogramGraph() error {
-	keys := []string{}
-	values := []int{}
-
-	for _, b := range m.Histogram {
-		for k, v := range b {
-			keys = append(keys, k)
-			values = append(values, v)
-		}
-	}
-
-	keysj, _ := json.Marshal(keys)
-	valuesj, _ := json.Marshal(values)
-
-	out := strings.Replace(template, "XKEYS", string(keysj), 1)
-	out = strings.Replace(out, "XVALUES", string(valuesj), 1)
-
-	d := []byte(out)
-	fname := fmt.Sprintf("tachymeter-%d.html", time.Now().Unix())
-	err := ioutil.WriteFile(fname, d, 0644)
-	if err != nil {
-		return err
-	}
-
-	return nil
+func (m *Metrics) WriteHtml(p string) error {
+	w := Timeline{}
+	w.AddEvent(m)
+	return w.WriteHtml(p)
 }
 
 // Dump prints a formatted Metrics output to console.

@@ -1,32 +1,46 @@
 package tachymeter
 
 import (
-	"fmt"
-	"time"
 	"bytes"
+	"encoding/json"
+	"fmt"
+	"io/ioutil"
+	"path/filepath"
 	"strconv"
 	"strings"
-	"encoding/json"
-	"io/ioutil"
+	"time"
 )
 
+// Timeline holds a []*timelineEvents,
+// which nest *Metrics for analyzing
+// multiple collections of measured events.
 type Timeline struct {
-	timeline []*TimelineEvent
+	timeline []*timelineEvent
 }
 
-type TimelineEvent struct {
+// timelineEvent holds a *Metrics and
+// time that it was added to the Timeline.
+type timelineEvent struct {
 	Metrics *Metrics
 	Created time.Time
 }
 
+// AddEvent adds a *Metrics to the *Timeline.
 func (t *Timeline) AddEvent(m *Metrics) {
-	t.timeline = append(t.timeline, &TimelineEvent{
+	t.timeline = append(t.timeline, &timelineEvent{
 		Metrics: m,
 		Created: time.Now(),
 	})
 }
 
-func (t *Timeline) WriteHtml() {
+// WriteHtml takes an absolute path p and writes an
+// html file to 'p/tachymeter-<timestamp>.html' of all
+// histograms held by the *Timeline, in series.
+func (t *Timeline) WriteHtml(p string) error {
+	path, err := filepath.Abs(p)
+	if err != nil {
+		return err
+	}
 	var b bytes.Buffer
 
 	b.WriteString(head)
@@ -40,21 +54,26 @@ func (t *Timeline) WriteHtml() {
 
 	// Write graphs.
 	for id, m := range t.timeline {
-		s := getGraphHtml(m, id)
+		s := genGraphHtml(m, id)
 		b.WriteString(s)
 	}
 
 	b.WriteString(tail)
 
+	// Write file.
 	d := []byte(b.String())
-	fname := fmt.Sprintf("tachymeter-%d.html", time.Now().Unix())
-	err := ioutil.WriteFile(fname, d, 0644)
+	fname := fmt.Sprintf("%s/tachymeter-%d.html", path, time.Now().Unix())
+	err = ioutil.WriteFile(fname, d, 0644)
 	if err != nil {
-		fmt.Println(err)
+		return err
 	}
+
+	return nil
 }
 
-func getGraphHtml(te *TimelineEvent, id int) string {
+// genGraphHtml takes a *timelineEvent and id (used for each graph
+// html element ID) and creates a chart.js graph output.
+func genGraphHtml(te *timelineEvent, id int) string {
 	keys := []string{}
 	values := []int{}
 
