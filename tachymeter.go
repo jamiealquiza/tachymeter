@@ -33,8 +33,9 @@ import (
 // parameters. Size defines the sample capacity.
 // Tachymeter is thread safe.
 type Config struct {
-	Size int
-	Safe bool // Deprecated. Flag held on to as to not break existing users.
+	Size     int
+	Safe     bool // Deprecated. Flag held on to as to not break existing users.
+	HBuckets int  // Histogram buckets.
 }
 
 // timeslice is used to hold time.Duration values.
@@ -49,6 +50,7 @@ type Tachymeter struct {
 	Times    timeSlice
 	Count    uint64
 	WallTime time.Duration
+	HBuckets int
 }
 
 // Metrics holds the calculated outputs
@@ -71,15 +73,24 @@ type Metrics struct {
 	Rate struct {
 		Second float64
 	}
-	Samples int
-	Count   int
+	Histogram []map[string]int
+	Samples   int
+	Count     int
 }
 
 // New initializes a new Tachymeter.
 func New(c *Config) *Tachymeter {
+	var hSize int
+	if c.HBuckets != 0 {
+		hSize = c.HBuckets
+	} else {
+		hSize = 10
+	}
+
 	return &Tachymeter{
-		Size:  uint64(c.Size),
-		Times: make([]time.Duration, c.Size),
+		Size:     uint64(c.Size),
+		Times:    make([]time.Duration, c.Size),
+		HBuckets: hSize,
 	}
 }
 
@@ -102,6 +113,14 @@ func (m *Tachymeter) AddTime(t time.Duration) {
 // in wall time and are writing to a shared Tachymeter instance.
 func (m *Tachymeter) SetWallTime(t time.Duration) {
 	m.WallTime = t
+}
+
+// WriteHtml writes a histograph
+// html file to the cwd.
+func (m *Metrics) WriteHtml(p string) error {
+	w := Timeline{}
+	w.AddEvent(m)
+	return w.WriteHtml(p)
 }
 
 // Dump prints a formatted Metrics output to console.
@@ -153,8 +172,9 @@ func (m *Metrics) MarshalJSON() ([]byte, error) {
 		Rate struct {
 			Second float64
 		}
-		Samples int
-		Count   int
+		Samples   int
+		Count     int
+		Histogram []map[string]int
 	}{
 		Time: struct {
 			Cumulative string
@@ -186,7 +206,8 @@ func (m *Metrics) MarshalJSON() ([]byte, error) {
 		Rate: struct{ Second float64 }{
 			Second: m.Rate.Second,
 		},
-		Samples: m.Samples,
-		Count:   m.Count,
+		Histogram: m.Histogram,
+		Samples:   m.Samples,
+		Count:     m.Count,
 	})
 }

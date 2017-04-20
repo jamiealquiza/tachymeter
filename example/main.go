@@ -17,8 +17,15 @@ func main() {
 		c.AddTime(time.Since(start))
 	}
 
-	results := c.Json()
-	fmt.Printf("%s\n\n", results)
+	resultsj := c.Json()
+	fmt.Printf("%s\n\n", resultsj)
 
-	c.Calc().Dump()
+	results := c.Calc()
+	// Print the pre-formatted console output.
+	results.Dump()
+	// Create an HTML graph of the event histogram.
+	err := results.WriteHtml(".")
+	if err != nil {
+		fmt.Println(err)
+	}
 }

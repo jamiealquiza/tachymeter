@@ -2,36 +2,29 @@
 
 # tachymeter
 
-Tachymeter simplifies the process of creating summarized rate and latency information from a series of timed events: "In this loop with 1,000 database calls, what was the 95%ile and lowest observed latency? What was the per-second rate?"
+Tachymeter simplifies the process of creating summarized rate and latency information from a series of timed events: _"In a loop with 1,000 database calls, what was the 95%ile and lowest observed latency? What was the per-second rate?"_
 
-Event durations in the form of [`time.Duration`](https://golang.org/pkg/time/#Duration) are added to a tachymeter instance using the `AddTime()` method.
+Event durations in the form of [`time.Duration`](https://golang.org/pkg/time/#Duration) are added to a tachymeter instance using the `AddTime(t time.Duration)` method.
 
-After all desired timings have been gathered, tachymeter output can be retrieved in several ways:
- - A `tachymeter.Metrics` for direct access: `results := c.Calc` -> `fmt.Printf("Median latency: %s\n", results.Time.P50)`
- - A json string: `jsonResults := c.Json()`
- - Printing a pre-formatted output to console: `results.Dump()`
+# Usage
 
-Tachymeter is initialized with a Size parameter that specifies the max sample size that will be used in the calculation. This is done to control resource usage and minimise the impact of introducting tachymeter into your application (by favoring fixed-size slices with indexed inserts rather than appends, limiting sort times, etc.); the `AddTime` method is o(1) @ ~20ns on modern hardware. If your actual event count is smaller than or equal to the tachymeter sample size, all of the meaused events will be included. If the event count exceeds the tachymeter size, the oldest data will be overwritten (this results in a last-window sample; sampling configuration will eventually be added).
-
-
-
-# Example Usage
+Tachymeter is initialized with a Size parameter that specifies the max sample size that will be used in the calculation. This is done to control resource usage and minimise the impact of introducting tachymeter into your application; the `AddTime` method is o(1) @ ~20ns on modern hardware. If the actual event count is smaller than or equal to the configured tachymeter size, all of the meaused events will be included. If the event count exceeds the tachymeter size, the oldest data will be overwritten (resulting in a last-window sample).
 
 See the [example](https://github.com/jamiealquiza/tachymeter/tree/master/example) file for a fully functioning example.
 
-```go
+```golang
 import "github.com/jamiealquiza/tachymeter"
 
 func main() {
-	c := tachymeter.New(&tachymeter.Config{Size: 50})
+    t := tachymeter.New(&tachymeter.Config{Size: 50})
 
-	for i := 0; i < 100; i++ {
-		start := time.Now()
-		doSomeWork()
-		c.AddTime(time.Since(start))
-	}
+    for i := 0; i < 100; i++ {
+        start := time.Now()
+        doSomeWork()
+        t.AddTime(time.Since(start))
+    }
 
-	c.Calc().Dump()
+    t.Calc().Dump()
 }
 ```
 
@@ -64,31 +57,92 @@ Rate/sec.:      70.90
 - `Range`: The delta between the max and min sample time
 - `Rate/sec.`: Per-second rate based on cumulative time and sample count.
 
+# Output Options
+
+After all desired timings have been gathered, the `Calc()` is called, returning a [`*Metrics`](https://godoc.org/github.com/jamiealquiza/tachymeter#Metrics). The results held by a `*Metrics` can be accessed in several ways (where `t` represents a tachymeter instance):
+
+### `tachymeter.Metrics` for direct access
+```golang
+results := t.Calc
+fmt.Printf("Median latency: %s\n", results.Time.P50)
+```
+
+### JSON string
+ ```golang
+results := t.Json()
+fmt.Printf("%s\n\n", results)
+```
+### Printing pre-formatted output to console
+ ```golang
+ t.results.Dump()`
+ ```
+
+### HTML histogram
+ Tachymeter `*Metrics` results also have to ability to create HTML histograms. The `WriteHtml(p string)` method is called where `p` is an output path where the HTML file should be written.
+
+ ```golang
+ err := t.Calc().WriteHtml(".")
+ ```
+
+Tachymeter also provides a `Timeline` type that's used to gather a series of `*Metrics` (each `*Metrics` themselves holding data summarizing a series of measured events). `*Metrics` are added to a `*Timeline` using the `AddEvent(m *Metrics)` method. Once the desired number of `*Metrics` has been collected, `WriteHtml` can be called on the `*Timeline`, resulting in an single HTML page with a histogram for each captured `*Metrics`. An example use case may be a benchmark where tachymeter is used to summarize the timing results of a loop, but several iterations of the loop are called in series:
+
+```golang
+// Init a tacymeter.
+t := tachymeter.New(&tachymeter.Config{Size: 100})
+
+// Init a timeline.
+tl := tachymeter.Timeline{}
+
+// Run a 10 iterations of a 100 iteration loop.
+for iters := 0; iters < 10; iters ++ {
+    for i := 0; i < 100; i++ {
+        start := time.Now()
+        doSomeWork()
+        t.AddTime(time.Since(start))
+    }
+
+    // For each inner loop run,
+    // calc the timing data and
+    // add it to the timeline.
+    tl.AddEvent(t.Calc())
+
+    // Reset the tachymeter for the next iteration.
+    t.Reset()
+}
+
+// Write an HTML output with a histogram for
+// each iteration.
+tl.WriteHtml(".")
+
+```
+
 # Accurate Rates With Parallelism
 
 By default, tachymeter calcualtes rate based on the number of events possible per-second according to average event duration. This model doesn't work in asynchronous or parallelized scenarios since events may be overlapping in time. For example, with many Goroutines writing durations to a shared tachymeter in parallel, the global rate must be determined by using the total event count over the total wall time elapsed.
 
-Tachymeter exposes a `SetWallTime` method (and additionally a `Safe` config for thread safety) that does just this if a duration is supplied.
+Tachymeter exposes a `SetWallTime` method for these scenarios.
 
 Example:
 
-```go
+```golang
 <...>
 
 func main() {
-    // Initialize tachymeter in Safe mode.
-    c := tachymeter.New(&tachymeter.Config{Size: 50, Safe: true})
+    // Initialize tachymeter.
+    c := tachymeter.New(&tachymeter.Config{Size: 50})
+
     // Start wall time for all Goroutines.
     wallTimeStart := time.Now()
     var wg sync.WaitGroup
     
-    // Run tasks asynchronously.
+    // Run tasks.
     for i := 0; i < 5; i++ {
-    	wg.Add(1)
+        wg.Add(1)
         go someTask(t, wg)
     }
     
     wg.Wait()
+
     // When finished, set elapsed wall time.
     t.SetWallTime(time.Since(wallTimeStart))
     
@@ -97,12 +151,11 @@ func main() {
 }
 
 func someTask(t *tachymeter.Tachymeter, wg *sync.WaitGroup) {
-	defer wg.Done()
-	start := time.Now()
-	
-	// Task we're timing happens here.
-	
-	t.AddTime(time.Since(start))
+    defer wg.Done()
+    start := time.Now()
+
+    // Task we're timing added here.
+    t.AddTime(time.Since(start))
 }
 
 <...>
