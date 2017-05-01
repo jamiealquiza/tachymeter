@@ -50,7 +50,7 @@ func (t *Timeline) WriteHtml(p string) error {
 	for n := range t.timeline {
 		b.WriteString(fmt.Sprintf(`%s%s<canvas id="canvas-%d"></canvas>%s`, tab, tab, n, nl))
 	}
-	b.WriteString(fmt.Sprintf(`%s<div id="container">`, tab))
+	b.WriteString(fmt.Sprintf(`%s</div>`, tab))
 
 	// Write graphs.
 	for id, m := range t.timeline {
