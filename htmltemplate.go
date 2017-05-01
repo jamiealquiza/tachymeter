@@ -2,7 +2,7 @@ package tachymeter
 
 const (
 	tab string = `	`
-	nl string = "\n"
+	nl  string = "\n"
 )
 
 var (
@@ -42,7 +42,7 @@ var (
         <canvas id="canvas-XCANVASID"></canvas>
     </div>`
 
-   graph = `
+	graph = `
 
 	<script>
 	var ctx = document.getElementById("canvas-XCANVASID");
@@ -53,9 +53,7 @@ var (
 	        datasets: [{
 	            label: 'Events',
 	            data: XVALUES,
-	            borderWidth: 1,
-				backgroundColor: "#9bb5c466",
-				fillOpacity: .3
+	            backgroundColor: "rgba(49, 77, 114, 0.76)"
 	        }]
 	    },
 	    options: {
@@ -74,5 +72,5 @@ var (
 
 	tail = "</body>\n</html>"
 
-	template = head+container+graph+tail
+	template = head + container + graph + tail
 )
