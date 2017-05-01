@@ -99,7 +99,7 @@ func calcHgram(b int, t timeSlice, low, max, r time.Duration) []map[string]int {
 	hgram := []map[string]int{}
 	pos := 1 // Bucket position.
 
-	bstring := fmt.Sprintf("%s-%s", low, high)
+	bstring := fmt.Sprintf("%s - %s", low, high)
 	bucket := map[string]int{}
 
 	for _, v := range t {
