@@ -84,15 +84,18 @@ func (m *Tachymeter) Calc() *Metrics {
 	metrics.Time.Min = times[0]
 	metrics.Time.Range = metrics.Time.Max - metrics.Time.Min
 
-	metrics.Histogram = calcHgram(m.HBuckets, times, metrics.Time.Min, metrics.Time.Max, metrics.Time.Range)
+	var bSize time.Duration
+	metrics.Histogram, bSize = calcHgram(m.HBuckets, times, metrics.Time.Min, metrics.Time.Max, metrics.Time.Range)
+	metrics.HistogramBucketSize = bSize
 
 	return metrics
 }
 
-// calcHgram returns a histogram of event durations t in b buckets.
+// calcHgram returns a histogram of event durations t in b buckets,
+// along with the bucket size.
 // A histogram bucket is a map["low-high duration"]count of events that
 // fall within the low / high range.
-func calcHgram(b int, t timeSlice, low, max, r time.Duration) []map[string]int {
+func calcHgram(b int, t timeSlice, low, max, r time.Duration) ([]map[string]int, time.Duration) {
 	// Interval is the time range / n buckets.
 	interval := time.Duration(int64(r) / int64(b))
 	high := low + interval
@@ -135,7 +138,7 @@ func calcHgram(b int, t timeSlice, low, max, r time.Duration) []map[string]int {
 
 	hgram = append(hgram, bucket)
 
-	return hgram
+	return hgram, interval
 }
 
 // These should be self-explanatory:

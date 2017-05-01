@@ -73,9 +73,10 @@ type Metrics struct {
 	Rate struct {
 		Second float64
 	}
-	Histogram []map[string]int
-	Samples   int
-	Count     int
+	Histogram           []map[string]int
+	HistogramBucketSize time.Duration
+	Samples             int
+	Count               int
 }
 
 // New initializes a new Tachymeter.
