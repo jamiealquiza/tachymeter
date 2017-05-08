@@ -1,12 +1,4 @@
-package tachymeter
-
-const (
-	tab string = `	`
-	nl  string = "\n"
-)
-
-var (
-	head = `<!doctype html>
+<!doctype html>
 <html>
 
 <head>
@@ -53,25 +45,77 @@ var (
 </head>
 <body>
 
-`
-
-	container = `
-
 	<div class="graph">
-        <canvas id="canvas-XCANVASID"></canvas>
-    </div>`
+		<canvas id="canvas-0"></canvas>
+	</div>
+	<div class="info">
+	<p><h2>Iteration 1</h2>
+50 samples of 100 events"
+Cumulative:	646.203108ms"
+Avg.:		12.924062ms"
+p50: 		11.729466ms"
+p75:		19.025329ms"
+p95:		27.140048ms"
+p99:		29.782403ms"
+p999:		29.782403ms"
+Long 5%:	28.971148ms"
+Short 5%:	353.355µs"
+Max:		29.782403ms"
+Min:		1.912µs"
+Range:		29.780491ms"
+Rate/sec.:	77.38"
+	</p></div>
+	<div class="graph">
+		<canvas id="canvas-1"></canvas>
+	</div>
+	<div class="info">
+	<p><h2>Iteration 2</h2>
+50 samples of 100 events"
+Cumulative:	615.700014ms"
+Avg.:		12.314ms"
+p50: 		11.129201ms"
+p75:		21.122813ms"
+p95:		28.869127ms"
+p99:		30.181878ms"
+p999:		30.181878ms"
+Long 5%:	30.156725ms"
+Short 5%:	2.469µs"
+Max:		30.181878ms"
+Min:		1.997µs"
+Range:		30.179881ms"
+Rate/sec.:	81.21"
+	</p></div>
+	<div class="graph">
+		<canvas id="canvas-2"></canvas>
+	</div>
+	<div class="info">
+	<p><h2>Iteration 3</h2>
+50 samples of 100 events"
+Cumulative:	674.882315ms"
+Avg.:		13.497646ms"
+p50: 		14.180961ms"
+p75:		20.90126ms"
+p95:		27.211583ms"
+p99:		30.204351ms"
+p999:		30.204351ms"
+Long 5%:	29.693825ms"
+Short 5%:	1.978µs"
+Max:		30.204351ms"
+Min:		1.944µs"
+Range:		30.202407ms"
+Rate/sec.:	74.09"
+	</p></div>
 
-	graph = `
 
 	<script>
-	var ctx = document.getElementById("canvas-XCANVASID");
+	var ctx = document.getElementById("canvas-0");
 	var myChart = new Chart(ctx, {
 	    type: 'bar',
 	    data: {
-	        labels: XKEYS,
+	        labels: ["1.912µs - 2.979961ms","2.979962ms - 5.95801ms","5.958011ms - 8.936059ms","8.93606ms - 11.914108ms","11.914109ms - 14.892157ms","14.892158ms - 17.870206ms","17.870207ms - 20.848255ms","20.848256ms - 23.826304ms","23.826305ms - 26.804353ms","26.804354ms - 29.782403ms"],
 	        datasets: [{
 	            label: 'Events',
-	            data: XVALUES,
+	            data: [5,4,9,8,7,4,2,3,4,4],
 	            backgroundColor: "rgba(49, 77, 114, 0.76)"
 	        }]
 	    },
@@ -87,9 +131,57 @@ var (
 	});
 	</script>
 
-`
 
-	tail = "</body>\n</html>"
 
-	template = head + container + graph + tail
-)
+	<script>
+	var ctx = document.getElementById("canvas-1");
+	var myChart = new Chart(ctx, {
+	    type: 'bar',
+	    data: {
+	        labels: ["1.997µs - 3.019985ms","3.019986ms - 6.037973ms","6.037974ms - 9.055961ms","9.055962ms - 12.073949ms","12.07395ms - 15.091937ms","15.091938ms - 18.109925ms","18.109926ms - 21.127913ms","21.127914ms - 24.145901ms","24.145902ms - 27.163889ms","27.16389ms - 30.181878ms"],
+	        datasets: [{
+	            label: 'Events',
+	            data: [7,10,5,6,3,3,4,5,3,4],
+	            backgroundColor: "rgba(49, 77, 114, 0.76)"
+	        }]
+	    },
+	    options: {
+	        scales: {
+	            yAxes: [{
+	                ticks: {
+	                    beginAtZero:true
+	                }
+	            }]
+	        }
+	    }
+	});
+	</script>
+
+
+
+	<script>
+	var ctx = document.getElementById("canvas-2");
+	var myChart = new Chart(ctx, {
+	    type: 'bar',
+	    data: {
+	        labels: ["1.944µs - 3.022184ms","3.022185ms - 6.042424ms","6.042425ms - 9.062664ms","9.062665ms - 12.082904ms","12.082905ms - 15.103144ms","15.103145ms - 18.123384ms","18.123385ms - 21.143624ms","21.143625ms - 24.163864ms","24.163865ms - 27.184104ms","27.184105ms - 30.204351ms"],
+	        datasets: [{
+	            label: 'Events',
+	            data: [7,6,4,4,7,6,4,6,3,3],
+	            backgroundColor: "rgba(49, 77, 114, 0.76)"
+	        }]
+	    },
+	    options: {
+	        scales: {
+	            yAxes: [{
+	                ticks: {
+	                    beginAtZero:true
+	                }
+	            }]
+	        }
+	    }
+	});
+	</script>
+
+</body>
+</html>
