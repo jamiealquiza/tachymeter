@@ -128,6 +128,8 @@ func main() {
 func someTask(t *tachymeter.Tachymeter, wg *sync.WaitGroup) {
     defer wg.Done()
     start := time.Now()
+    
+    // doSomeSlowDbCall()
 
     // Task we're timing added here.
     t.AddTime(time.Since(start))
