@@ -131,21 +131,21 @@ func (m *Metrics) Dump() {
 }
 
 func (m *Metrics) DumpString() string {
-	return fmt.Sprintf(`%d samples of %d events"
-Cumulative:	%s"
-HMean:		%s"
-Avg.:		%s"
-p50: 		%s"
-p75:		%s"
-p95:		%s"
-p99:		%s"
-p999:		%s"
-Long 5%%:	%s"
-Short 5%%:	%s"
-Max:		%s"
-Min:		%s"
-Range:		%s"
-Rate/sec.:	%.2f"`,
+	return fmt.Sprintf(`%d samples of %d events
+Cumulative:	%s
+HMean:		%s
+Avg.:		%s
+p50: 		%s
+p75:		%s
+p95:		%s
+p99:		%s
+p999:		%s
+Long 5%%:	%s
+Short 5%%:	%s
+Max:		%s
+Min:		%s
+Range:		%s
+Rate/sec.:	%.2f`,
 		m.Samples,
 		m.Count,
 		m.Time.Cumulative,

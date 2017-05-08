@@ -148,7 +148,6 @@ func calcHMean(d []time.Duration) time.Duration {
 	var total float64
 
 	for _, t := range d {
-		fmt.Printf("%.0f, ", float64(t))
 		total += (1 / float64(t))
 	}
 
