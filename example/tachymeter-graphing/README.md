@@ -50,3 +50,5 @@ Running iteration 1
 Running iteration 2
 Results written
 ```
+
+[HTML Example Output](https://jamiealquiza.github.io/tachymeter/)
