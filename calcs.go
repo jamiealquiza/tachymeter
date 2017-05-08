@@ -72,7 +72,8 @@ func (m *Tachymeter) Calc() *Metrics {
 
 	m.Unlock()
 
-	metrics.Time.Avg = calcAvg(times, metrics.Samples)
+	metrics.Time.Avg = calcAvg(times)
+	metrics.Time.HMean = calcHMean(times)
 	metrics.Time.P50 = times[len(times)/2]
 	metrics.Time.P75 = calcP(times, 0.75)
 	metrics.Time.P95 = calcP(times, 0.95)
@@ -143,6 +144,17 @@ func calcHgram(b int, t timeSlice, low, max, r time.Duration) ([]map[string]int,
 
 // These should be self-explanatory:
 
+func calcHMean(d []time.Duration) time.Duration {
+	var total float64
+
+	for _, t := range d {
+		fmt.Printf("%.0f, ", float64(t))
+		total += (1 / float64(t))
+	}
+
+	return time.Duration(float64(len(d)) / total)
+}
+
 func calcTimeCumulative(d []time.Duration) time.Duration {
 	var total time.Duration
 	for _, t := range d {
@@ -152,12 +164,12 @@ func calcTimeCumulative(d []time.Duration) time.Duration {
 	return total
 }
 
-func calcAvg(d []time.Duration, c int) time.Duration {
+func calcAvg(d []time.Duration) time.Duration {
 	var total time.Duration
 	for _, t := range d {
 		total += t
 	}
-	return time.Duration(int(total) / c)
+	return time.Duration(int(total) / len(d))
 }
 
 func calcP(d []time.Duration, p float64) time.Duration {

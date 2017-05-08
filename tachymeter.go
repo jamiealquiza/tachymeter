@@ -58,6 +58,7 @@ type Tachymeter struct {
 type Metrics struct {
 	Time struct {
 		Cumulative time.Duration
+		HMean      time.Duration
 		Avg        time.Duration
 		P50        time.Duration
 		P75        time.Duration
@@ -132,6 +133,7 @@ func (m *Metrics) Dump() {
 func (m *Metrics) DumpString() string {
 	return fmt.Sprintf(`%d samples of %d events"
 Cumulative:	%s"
+HMean:		%s"
 Avg.:		%s"
 p50: 		%s"
 p75:		%s"
@@ -147,6 +149,7 @@ Rate/sec.:	%.2f"`,
 		m.Samples,
 		m.Count,
 		m.Time.Cumulative,
+		m.Time.HMean,
 		m.Time.Avg,
 		m.Time.P50,
 		m.Time.P75,
@@ -177,6 +180,7 @@ func (m *Metrics) MarshalJSON() ([]byte, error) {
 	return json.Marshal(&struct {
 		Time struct {
 			Cumulative string
+			HMean      string
 			Avg        string
 			P50        string
 			P75        string
@@ -198,6 +202,7 @@ func (m *Metrics) MarshalJSON() ([]byte, error) {
 	}{
 		Time: struct {
 			Cumulative string
+			HMean      string
 			Avg        string
 			P50        string
 			P75        string
@@ -211,6 +216,7 @@ func (m *Metrics) MarshalJSON() ([]byte, error) {
 			Range      string
 		}{
 			Cumulative: m.Time.Cumulative.String(),
+			HMean:      m.Time.HMean.String(),
 			Avg:        m.Time.Avg.String(),
 			P50:        m.Time.P50.String(),
 			P75:        m.Time.P75.String(),
