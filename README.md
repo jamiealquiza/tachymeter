@@ -58,7 +58,7 @@ Rate/sec.:      70.90
 
 ### Configuration
 
-Tachymeter is initialized with a `Size` parameter that specifies the max sample count that will be used in the calculation. This is done to control resource usage and minimise the impact of tachymeter inside an application; the `AddTime` method is o(1) @ ~20ns on modern hardware. If the actual event count is smaller than or equal to the configured tachymeter size, all of the meaused events will be included. If the event count exceeds the tachymeter size, the oldest data will be overwritten (resulting in a last-window sample).
+Tachymeter is initialized with a `Size` parameter that specifies the max sample count that will be used in the calculation. This is done to control resource usage and minimise the impact of tachymeter inside an application; the `AddTime` method is o(1) @ ~20ns on modern hardware. If the actual event count is smaller than or equal to the configured tachymeter size, all of the meaused events will be included. If the event count exceeds the tachymeter size, the oldest data will be overwritten. In this scenario, the last window of data (that fits into the configured `Size`) will be used for output calculations.
 
 # Output Options
 
