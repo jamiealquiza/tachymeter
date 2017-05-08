@@ -29,24 +29,26 @@ func main() {
 
 ```
 50 samples of 100 events
-Cumulative:     705.24222ms
-Avg.:           14.104844ms
-p50:            13.073198ms
-p75:            21.358238ms
-p95:            28.289403ms
-p99:            30.544326ms
-p999:           30.544326ms
-Long 5%:        29.843555ms
-Short 5%:       356.145µs
-Max:            30.544326ms
-Min:            2.455µs
-Range:          30.541871ms
-Rate/sec.:      70.90
+Cumulative:     669.433006ms
+HMean:          47.477µs
+Avg.:           13.38866ms
+p50:            11.191119ms
+p75:            19.15929ms
+p95:            28.145686ms
+p99:            30.135862ms
+p999:           30.135862ms
+Long 5%:        29.156558ms
+Short 5%:       424.823µs
+Max:            30.135862ms
+Min:            1.765µs
+Range:          30.134097ms
+Rate/sec.:      74.69
 ```
 
 ### Output Descriptions
 
 - `Cumulative`: Aggregate of all sample durations.
+- `HMean`: Event duration harmonic mean.
 - `Avg.`: Average event duration per sample.
 - `p<N>`: Nth %ile.
 - `Long 5%`: Average event duration of the longest 5%.
