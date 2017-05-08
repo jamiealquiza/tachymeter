@@ -1,6 +1,6 @@
 ### Install
  - `$ go get github.com/jamiealquiza/tachymeter`
- - `$ go install github.com/jamiealquiza/tachymeter/example`
+ - `$ go install github.com/jamiealquiza/tachymeter/example/tachymeter-simple`
 
 
 ### Example code
@@ -27,20 +27,14 @@ func main() {
 	resultsj := c.Json()
 	fmt.Printf("%s\n\n", resultsj)
 
-	results := c.Calc()
 	// Print the pre-formatted console output.
-	results.Dump()
-	// Create an HTML graph of the event histogram.
-	err := results.WriteHtml(".")
-	if err != nil {
-		fmt.Println(err)
-	}
+	results.Calc().Dump()
 }
 ```
 
 ### Output
 ```
-$ $GOPATH/bin/example
+$ $GOPATH/bin/tachymeter-simple
 {"Time":{"Cumulative":"669.072395ms","Avg":"13.381447ms","P50":"12.257547ms","P75":"19.807712ms","P95":"27.389804ms","P99":"31.873821ms","P999":"31.873821ms","Long5p":"30.012355ms","Short5p":"439.781µs","Max":"31.873821ms","Min":"2.018µs","Range":"31.871803ms"},"Rate":{"Second":74.73032869634383},"Samples":50,"Count":100,"Histogram":[{"2.018µs-3.189198ms":6},{"3.189199ms - 6.376378ms":2},{"6.376379ms - 9.563558ms":12},{"9.563559ms - 12.750738ms":6},{"12.750739ms - 15.937918ms":7},{"15.937919ms - 19.125098ms":4},{"19.125099ms - 22.312278ms":2},{"22.312279ms - 25.499458ms":6},{"25.499459ms - 28.686638ms":4},{"28.686639ms - 31.873821ms":1}]}
 
 50 samples of 100 events
@@ -58,6 +52,3 @@ Min:            2.018µs
 Range:          31.871803ms
 Rate/sec.:      74.73
 ```
-
-# HTML histogram output
-![ss](https://cloud.githubusercontent.com/assets/4108044/25065488/38a99b9a-21ce-11e7-8f5e-1a3b6f1a413b.png)
