@@ -126,20 +126,39 @@ func (m *Metrics) WriteHtml(p string) error {
 
 // Dump prints a formatted Metrics output to console.
 func (m *Metrics) Dump() {
-	fmt.Printf("%d samples of %d events\n", m.Samples, m.Count)
-	fmt.Printf("Cumulative:\t%s\n", m.Time.Cumulative)
-	fmt.Printf("Avg.:\t\t%s\n", m.Time.Avg)
-	fmt.Printf("p50: \t\t%s\n", m.Time.P50)
-	fmt.Printf("p75:\t\t%s\n", m.Time.P75)
-	fmt.Printf("p95:\t\t%s\n", m.Time.P95)
-	fmt.Printf("p99:\t\t%s\n", m.Time.P99)
-	fmt.Printf("p999:\t\t%s\n", m.Time.P999)
-	fmt.Printf("Long 5%%:\t%s\n", m.Time.Long5p)
-	fmt.Printf("Short 5%%:\t%s\n", m.Time.Short5p)
-	fmt.Printf("Max:\t\t%s\n", m.Time.Max)
-	fmt.Printf("Min:\t\t%s\n", m.Time.Min)
-	fmt.Printf("Range:\t\t%s\n", m.Time.Range)
-	fmt.Printf("Rate/sec.:\t%.2f\n", m.Rate.Second)
+	fmt.Println(m.DumpString())
+}
+
+func (m *Metrics) DumpString() string {
+	return fmt.Sprintf(`%d samples of %d events"
+Cumulative:	%s"
+Avg.:		%s"
+p50: 		%s"
+p75:		%s"
+p95:		%s"
+p99:		%s"
+p999:		%s"
+Long 5%%:	%s"
+Short 5%%:	%s"
+Max:		%s"
+Min:		%s"
+Range:		%s"
+Rate/sec.:	%.2f"`,
+		m.Samples,
+		m.Count,
+		m.Time.Cumulative,
+		m.Time.Avg,
+		m.Time.P50,
+		m.Time.P75,
+		m.Time.P95,
+		m.Time.P99,
+		m.Time.P999,
+		m.Time.Long5p,
+		m.Time.Short5p,
+		m.Time.Max,
+		m.Time.Min,
+		m.Time.Range,
+		m.Rate.Second)
 }
 
 // Json calls the Calc method on a Tachymeter

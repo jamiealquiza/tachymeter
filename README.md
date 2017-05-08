@@ -78,43 +78,15 @@ fmt.Printf("%s\n\n", results)
  ```
 
 ### HTML histogram
- Tachymeter `*Metrics` results also have to ability to create HTML histograms. The `WriteHtml(p string)` method is called where `p` is an output path where the HTML file should be written.
+ Tachymeter `*Metrics` results also have to ability to be written as HTML histograms. The `WriteHtml(p string)` method is called where `p` is an output path where the HTML file should be written.
 
  ```golang
  err := t.Calc().WriteHtml(".")
  ```
+ 
+ ![ss](https://cloud.githubusercontent.com/assets/4108044/25824005/0d340d1c-33fb-11e7-84de-d1fcd8dc349f.png)
 
-Tachymeter also provides a `Timeline` type that's used to gather a series of `*Metrics` (each `*Metrics` themselves holding data summarizing a series of measured events). `*Metrics` are added to a `*Timeline` using the `AddEvent(m *Metrics)` method. Once the desired number of `*Metrics` has been collected, `WriteHtml` can be called on the `*Timeline`, resulting in an single HTML page with a histogram for each captured `*Metrics`. An example use case may be a benchmark where tachymeter is used to summarize the timing results of a loop, but several iterations of the loop are called in series:
-
-```golang
-// Init a tacymeter.
-t := tachymeter.New(&tachymeter.Config{Size: 100})
-
-// Init a timeline.
-tl := tachymeter.Timeline{}
-
-// Run a 10 iterations of a 100 iteration loop.
-for iters := 0; iters < 10; iters ++ {
-    for i := 0; i < 100; i++ {
-        start := time.Now()
-        doSomeWork()
-        t.AddTime(time.Since(start))
-    }
-
-    // For each inner loop run,
-    // calc the timing data and
-    // add it to the timeline.
-    tl.AddEvent(t.Calc())
-
-    // Reset the tachymeter for the next iteration.
-    t.Reset()
-}
-
-// Write an HTML output with a histogram for
-// each iteration.
-tl.WriteHtml(".")
-
-```
+Tachymeter also provides a `Timeline` type that's used to gather a series of `*Metrics` (each `*Metrics` themselves holding data summarizing a series of measured events). `*Metrics` are added to a `*Timeline` using the `AddEvent(m *Metrics)` method. Once the desired number of `*Metrics` has been collected, `WriteHtml` can be called on the `*Timeline`, resulting in an single HTML page with a histogram for each captured `*Metrics`. An example use case may be a benchmark where tachymeter is used to summarize the timing results of a loop, but several iterations of the loop are to be called in series. See the [tachymeter-graphing example](https://github.com/jamiealquiza/tachymeter/master/graphs/example/tachymeter-graphing) for further details.
 
 # Accurate Rates With Parallelism
 

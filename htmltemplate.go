@@ -30,15 +30,34 @@ var (
 
 	Chart.defaults.global.defaultFontColor = "#63351c";
 	</script>
-</head>
 
+	<style>
+		body {
+		    font-family: Courier;
+		}
+
+		div.graph {
+			width: 70%;
+			display: inline-block;
+		}
+
+		div.info {
+			width: 20%;
+			white-space: pre;
+			font-size: 80%;
+			display: inline-block;
+    		vertical-align: top;
+		}
+	</style>
+
+</head>
 <body>
 
 `
 
 	container = `
 
-	<div id="container">
+	<div class="graph">
         <canvas id="canvas-XCANVASID"></canvas>
     </div>`
 

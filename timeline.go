@@ -45,12 +45,19 @@ func (t *Timeline) WriteHtml(p string) error {
 
 	b.WriteString(head)
 
-	// Create a canvast for each timeline event.
-	b.WriteString(fmt.Sprintf(`%s<div id="container">%s`, tab, nl))
+	// Append graph + info entry for each timeline
+	// event.
 	for n := range t.timeline {
+		// Graph div.
+		b.WriteString(fmt.Sprintf(`%s<div class="graph">%s`, tab, nl))
 		b.WriteString(fmt.Sprintf(`%s%s<canvas id="canvas-%d"></canvas>%s`, tab, tab, n, nl))
+		b.WriteString(fmt.Sprintf(`%s</div>%s`, tab, nl))
+		// Info div.
+		b.WriteString(fmt.Sprintf(`%s<div class="info">%s`, tab, nl))
+		b.WriteString(fmt.Sprintf(`%s<p><h2>Iteration %d</h2>%s`, tab, n+1, nl))
+		b.WriteString(t.timeline[n].Metrics.DumpString())
+		b.WriteString(fmt.Sprintf("%s%s</p></div>%s", nl, tab, nl))
 	}
-	b.WriteString(fmt.Sprintf(`%s</div>`, tab))
 
 	// Write graphs.
 	for id, m := range t.timeline {
