@@ -83,6 +83,8 @@ fmt.Printf("%s\n\n", results)
  ```golang
  err := t.Calc().WriteHtml(".")
  ```
+ 
+ ![ss](https://cloud.githubusercontent.com/assets/4108044/25824005/0d340d1c-33fb-11e7-84de-d1fcd8dc349f.png)
 
 Tachymeter also provides a `Timeline` type that's used to gather a series of `*Metrics` (each `*Metrics` themselves holding data summarizing a series of measured events). `*Metrics` are added to a `*Timeline` using the `AddEvent(m *Metrics)` method. Once the desired number of `*Metrics` has been collected, `WriteHtml` can be called on the `*Timeline`, resulting in an single HTML page with a histogram for each captured `*Metrics`. An example use case may be a benchmark where tachymeter is used to summarize the timing results of a loop, but several iterations of the loop are to be called in series. See the [tachymeter-graphing example](https://github.com/jamiealquiza/tachymeter/master/graphs/example/tachymeter-graphing) for further details.
 
