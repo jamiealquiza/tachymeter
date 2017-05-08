@@ -4,13 +4,12 @@
 
 Tachymeter simplifies the process of creating summarized rate and latency information from a series of timed events: _"In a loop with 1,000 database calls, what was the 95%ile and lowest observed latency? What was the per-second rate?"_
 
-Event durations in the form of [`time.Duration`](https://golang.org/pkg/time/#Duration) are added to a tachymeter instance using the `AddTime(t time.Duration)` method.
-
 # Usage
 
-Tachymeter is initialized with a Size parameter that specifies the max sample size that will be used in the calculation. This is done to control resource usage and minimise the impact of introducting tachymeter into your application; the `AddTime` method is o(1) @ ~20ns on modern hardware. If the actual event count is smaller than or equal to the configured tachymeter size, all of the meaused events will be included. If the event count exceeds the tachymeter size, the oldest data will be overwritten (resulting in a last-window sample).
+Once a `tachymeter` is initialized, event durations in the form of [`time.Duration`](https://golang.org/pkg/time/#Duration) are added using the `AddTime(t time.Duration)` method. When all desired timing have been collected, several [output methods](https://github.com/jamiealquiza/tachymeter#output-options) are available to view the summarized data.
 
-See the [example](https://github.com/jamiealquiza/tachymeter/tree/master/example) file for a fully functioning example.
+
+See further code [examples](https://github.com/jamiealquiza/tachymeter/tree/master/example).
 
 ```golang
 import "github.com/jamiealquiza/tachymeter"
@@ -56,6 +55,10 @@ Rate/sec.:      70.90
 - `Min`: Min observed event duration.
 - `Range`: The delta between the max and min sample time
 - `Rate/sec.`: Per-second rate based on cumulative time and sample count.
+
+### Configuration
+
+Tachymeter is initialized with a `Size` parameter that specifies the max sample count that will be used in the calculation. This is done to control resource usage and minimise the impact of tachymeter inside an application; the `AddTime` method is o(1) @ ~20ns on modern hardware. If the actual event count is smaller than or equal to the configured tachymeter size, all of the meaused events will be included. If the event count exceeds the tachymeter size, the oldest data will be overwritten (resulting in a last-window sample).
 
 # Output Options
 
