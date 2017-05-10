@@ -51,4 +51,4 @@ Running iteration 2
 Results written
 ```
 
-[HTML Example Output](https://jamiealquiza.github.io/tachymeter/)
+## [HTML Example Output](https://jamiealquiza.github.io/tachymeter/)
