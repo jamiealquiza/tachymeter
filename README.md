@@ -2,12 +2,11 @@
 
 # tachymeter
 
-Tachymeter simplifies the process of creating summarized rate and latency information from a series of timed events: _"In a loop with 1,000 database calls, what was the 95%ile and lowest observed latency? What was the per-second rate?"_
+Tachymeter simplifies the process of gathering summarized rate and latency information from a series of timed events: _"In a loop with 1,000 database calls, what was the 95%ile and lowest observed latency? What was the per-second rate?"_
 
 # Usage
 
-Once a `tachymeter` is initialized, event durations in the form of [`time.Duration`](https://golang.org/pkg/time/#Duration) are added using the `AddTime(t time.Duration)` method. When all desired timing have been collected, several [output methods](https://github.com/jamiealquiza/tachymeter#output-options) are available to view the summarized data.
-
+After initializing a `tachymeter`, event durations in the form of [`time.Duration`](https://golang.org/pkg/time/#Duration) are added using the `AddTime(t time.Duration)` method. Once all desired timing have been collected, the data is summarized by calling the `Calc()` method (returning a [`*Metrics`](https://godoc.org/github.com/jamiealquiza/tachymeter#Metrics)). `*Metrics` fields can be accessed directly or via several [output methods](https://github.com/jamiealquiza/tachymeter#output-options).
 
 See further code [examples](https://github.com/jamiealquiza/tachymeter/tree/master/example).
 
@@ -15,14 +14,20 @@ See further code [examples](https://github.com/jamiealquiza/tachymeter/tree/mast
 import "github.com/jamiealquiza/tachymeter"
 
 func main() {
+    // Initialize a tachymeter with a max
+    // sample window of 50.
     t := tachymeter.New(&tachymeter.Config{Size: 50})
 
     for i := 0; i < 100; i++ {
         start := time.Now()
         doSomeWork()
+        // We add the time that
+        // each doSomeWork() call took.
         t.AddTime(time.Since(start))
     }
 
+    // The timing summaries are calculated
+    // and dumped to console.
     t.Calc().Dump()
 }
 ```
@@ -60,33 +65,32 @@ Rate/sec.:      74.69
 
 ### Configuration
 
-Tachymeter is initialized with a `Size` parameter that specifies the max sample count that will be used in the calculation. This is done to control resource usage and minimise the impact of tachymeter inside an application; the `AddTime` method is o(1) @ ~20ns on modern hardware. If the actual event count is smaller than or equal to the configured tachymeter size, all of the meaused events will be included. If the event count exceeds the tachymeter size, the oldest data will be overwritten. In this scenario, the last window of data (that fits into the configured `Size`) will be used for output calculations.
+Tachymeter is initialized with a `Size` parameter that specifies the max sample count that can be held. This is done to control resource usage and minimize the impact of tachymeter inside an application; the `AddTime` method is o(1) @ ~20ns on modern hardware. If the actual event count is smaller than or equal to the configured tachymeter size, all of the meaused events will be included in the calculated results. If the event count exceeds the tachymeter size, the oldest data will be overwritten. In this scenario, the last window of data (that fits into the configured `Size`) will be used for output calculations.
 
 # Output Options
 
-After all desired timings have been gathered, the `Calc()` is called, returning a [`*Metrics`](https://godoc.org/github.com/jamiealquiza/tachymeter#Metrics). The results held by a `*Metrics` can be accessed in several ways (where `t` represents a tachymeter instance):
+`t` represents a tachymeter instance.
 
 ### `tachymeter.Metrics` for direct access
 ```golang
-results := t.Calc
+results := t.Calc()
 fmt.Printf("Median latency: %s\n", results.Time.P50)
 ```
 
 ### JSON string
  ```golang
-results := t.Json()
-fmt.Printf("%s\n\n", results)
+fmt.Printf("%s\n\", results.Json())
 ```
 ### Printing pre-formatted output to console
  ```golang
- t.results.Dump()`
+results.Dump()
  ```
 
 ### HTML histogram
  Tachymeter `*Metrics` results also have to ability to be written as HTML histograms. The `WriteHtml(p string)` method is called where `p` is an output path where the HTML file should be written.
 
  ```golang
- err := t.Calc().WriteHtml(".")
+ err := results.WriteHtml(".")
  ```
  
 ![ss](https://cloud.githubusercontent.com/assets/4108044/25826873/c40d62b8-3405-11e7-9dec-047d1e0c6f42.png)

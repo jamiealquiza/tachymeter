@@ -1,3 +1,5 @@
+This example uses the tachymeter [Timeline](https://godoc.org/github.com/jamiealquiza/tachymeter#Timeline) type for gathering summary metrics from several iterations of a measured loop, outputting a single HTML page with histograms and summaries per iteration.
+
 ### Install
  - `$ go get github.com/jamiealquiza/tachymeter`
  - `$ go install github.com/jamiealquiza/tachymeter/example/tachymeter-graphing`

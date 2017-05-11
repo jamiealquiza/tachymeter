@@ -1,3 +1,5 @@
+This example measures the durations of each iteration of a single loop and prints the summarized output.
+
 ### Install
  - `$ go get github.com/jamiealquiza/tachymeter`
  - `$ go install github.com/jamiealquiza/tachymeter/example/tachymeter-simple`
