@@ -143,11 +143,10 @@ Rate/sec.:	%.2f`,
 		m.Rate.Second)
 }
 
-// Json calls the Calc method on a Tachymeter
-// instance and returns a json string of the output.
-func (m *Tachymeter) Json() string {
-	metrics := m.Calc()
-	j, _ := json.Marshal(&metrics)
+// Json returns a *Metrics as
+// a JSON string.
+func (m *Metrics) Json() string {
+	j, _ := json.Marshal(m)
 
 	return string(j)
 }

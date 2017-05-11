@@ -18,17 +18,21 @@ import (
 func main() {
 	c := tachymeter.New(&tachymeter.Config{Size: 50})
 
+	// Measure events.
 	for i := 0; i < 100; i++ {
 		start := time.Now()
 		time.Sleep(time.Duration(rand.Intn(30)) * time.Millisecond)
 		c.AddTime(time.Since(start))
 	}
 
-	resultsj := c.Json()
-	fmt.Printf("%s\n\n", resultsj)
+	// Calc output.
+	results := c.Calc()
 
-	// Print the pre-formatted console output.
-	results.Calc().Dump()
+	// Print JSON format to console.
+	fmt.Printf("%s\n\n", results.Json())
+
+	// Print pre-formatted console output.
+	results.Dump()
 }
 ```
 
