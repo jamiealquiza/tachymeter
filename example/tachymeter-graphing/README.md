@@ -41,7 +41,7 @@ func main() {
 
 	// Write out an HTML page with the
 	// histogram for all iterations.
-	err := tl.WriteHtml(".")
+	err := tl.WriteHTML(".")
 	if err != nil {
 		fmt.Println(err)
 	}

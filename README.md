@@ -79,7 +79,7 @@ fmt.Printf("Median latency: %s\n", results.Time.P50)
 
 ### JSON string
  ```golang
-fmt.Printf("%s\n\", results.Json())
+fmt.Printf("%s\n\", results.JSON())
 ```
 ### Printing pre-formatted output to console
  ```golang
@@ -87,15 +87,15 @@ results.Dump()
  ```
 
 ### HTML histogram
- Tachymeter `*Metrics` results also have to ability to be written as HTML histograms. The `WriteHtml(p string)` method is called where `p` is an output path where the HTML file should be written.
+ Tachymeter `*Metrics` results also have to ability to be written as HTML histograms. The `WriteHTML(p string)` method is called where `p` is an output path where the HTML file should be written.
 
  ```golang
- err := results.WriteHtml(".")
+ err := results.WriteHTML(".")
  ```
  
 ![ss](https://cloud.githubusercontent.com/assets/4108044/25826873/c40d62b8-3405-11e7-9dec-047d1e0c6f42.png)
 
-Tachymeter also provides a `Timeline` type that's used to gather a series of `*Metrics` (each `*Metrics` themselves holding data summarizing a series of measured events). `*Metrics` are added to a `*Timeline` using the `AddEvent(m *Metrics)` method. Once the desired number of `*Metrics` has been collected, `WriteHtml` can be called on the `*Timeline`, resulting in an single HTML page with a histogram for each captured `*Metrics`. An example use case may be a benchmark where tachymeter is used to summarize the timing results of a loop, but several iterations of the loop are to be called in series. See the [tachymeter-graphing example](https://github.com/jamiealquiza/tachymeter/tree/master/example/tachymeter-graphing) for further details.
+Tachymeter also provides a `Timeline` type that's used to gather a series of `*Metrics` (each `*Metrics` themselves holding data summarizing a series of measured events). `*Metrics` are added to a `*Timeline` using the `AddEvent(m *Metrics)` method. Once the desired number of `*Metrics` has been collected, `WriteHTML` can be called on the `*Timeline`, resulting in an single HTML page with a histogram for each captured `*Metrics`. An example use case may be a benchmark where tachymeter is used to summarize the timing results of a loop, but several iterations of the loop are to be called in series. See the [tachymeter-graphing example](https://github.com/jamiealquiza/tachymeter/tree/master/example/tachymeter-graphing) for further details.
 
 # Accurate Rates With Parallelism
 
