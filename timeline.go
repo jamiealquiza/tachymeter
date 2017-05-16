@@ -33,10 +33,10 @@ func (t *Timeline) AddEvent(m *Metrics) {
 	})
 }
 
-// WriteHtml takes an absolute path p and writes an
+// WriteHTML takes an absolute path p and writes an
 // html file to 'p/tachymeter-<timestamp>.html' of all
 // histograms held by the *Timeline, in series.
-func (t *Timeline) WriteHtml(p string) error {
+func (t *Timeline) WriteHTML(p string) error {
 	path, err := filepath.Abs(p)
 	if err != nil {
 		return err
@@ -61,7 +61,7 @@ func (t *Timeline) WriteHtml(p string) error {
 
 	// Write graphs.
 	for id, m := range t.timeline {
-		s := genGraphHtml(m, id)
+		s := genGraphHTML(m, id)
 		b.WriteString(s)
 	}
 
@@ -78,9 +78,9 @@ func (t *Timeline) WriteHtml(p string) error {
 	return nil
 }
 
-// genGraphHtml takes a *timelineEvent and id (used for each graph
+// genGraphHTML takes a *timelineEvent and id (used for each graph
 // html element ID) and creates a chart.js graph output.
-func genGraphHtml(te *timelineEvent, id int) string {
+func genGraphHTML(te *timelineEvent, id int) string {
 	keys := []string{}
 	values := []int{}
 

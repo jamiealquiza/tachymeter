@@ -96,12 +96,12 @@ func (m *Tachymeter) SetWallTime(t time.Duration) {
 	m.WallTime = t
 }
 
-// WriteHtml writes a histograph
+// WriteHTML writes a histograph
 // html file to the cwd.
-func (m *Metrics) WriteHtml(p string) error {
+func (m *Metrics) WriteHTML(p string) error {
 	w := Timeline{}
 	w.AddEvent(m)
-	return w.WriteHtml(p)
+	return w.WriteHTML(p)
 }
 
 // Dump prints a formatted Metrics output to console.
@@ -109,6 +109,7 @@ func (m *Metrics) Dump() {
 	fmt.Println(m.DumpString())
 }
 
+// DumpString returns a formatted Metrics string.
 func (m *Metrics) DumpString() string {
 	return fmt.Sprintf(`%d samples of %d events
 Cumulative:	%s
@@ -143,16 +144,16 @@ Rate/sec.:	%.2f`,
 		m.Rate.Second)
 }
 
-// Json returns a *Metrics as
+// JSON returns a *Metrics as
 // a JSON string.
-func (m *Metrics) Json() string {
+func (m *Metrics) JSON() string {
 	j, _ := json.Marshal(m)
 
 	return string(j)
 }
 
 // MarshalJSON defines the output formatting
-// for the Json() method. This is exported as a
+// for the JSON() method. This is exported as a
 // requirement but not intended for end users.
 func (m *Metrics) MarshalJSON() ([]byte, error) {
 	return json.Marshal(&struct {

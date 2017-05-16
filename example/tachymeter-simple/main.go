@@ -22,7 +22,7 @@ func main() {
 	results := c.Calc()
 
 	// Print JSON format to console.
-	fmt.Printf("%s\n\n", results.Json())
+	fmt.Printf("%s\n\n", results.JSON())
 
 	// Print pre-formatted console output.
 	results.Dump()
