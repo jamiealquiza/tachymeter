@@ -1,3 +1,5 @@
+// Package tachymeter yields summarized data
+// describing a series of timed events.
 package tachymeter
 
 import (
