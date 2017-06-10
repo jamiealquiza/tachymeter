@@ -42,28 +42,30 @@ type Tachymeter struct {
 // Metrics holds the calculated outputs
 // produced from a Tachymeter sample set.
 type Metrics struct {
-	Time struct {
-		Cumulative time.Duration
-		HMean      time.Duration
-		Avg        time.Duration
-		P50        time.Duration
+	Time struct { // All values under Time are selected entirely from events within the sample window.
+		Cumulative time.Duration // Cumulative time of all sampled events.
+		HMean      time.Duration // Event duration harmonic mean.
+		Avg        time.Duration // Event duration average.
+		P50        time.Duration // Event duration nth percentiles ..
 		P75        time.Duration
 		P95        time.Duration
 		P99        time.Duration
 		P999       time.Duration
-		Long5p     time.Duration
-		Short5p    time.Duration
-		Max        time.Duration
-		Min        time.Duration
-		Range      time.Duration
+		Long5p     time.Duration // Average of the longest 5% event durations.
+		Short5p    time.Duration // Average of the shortest 5% event durations.
+		Max        time.Duration // Highest event duration.
+		Min        time.Duration // Lowest event duration.
+		Range      time.Duration // Event duration range (Max-Min).
 	}
 	Rate struct {
+		// Per-second rate based on event duration avg. via Metrics.Cumulative / Metrics.Samples.
+		// If SetWallTime was called, event duration avg = wall time / Metrics.Count
 		Second float64
 	}
-	Histogram           []map[string]int
-	HistogramBucketSize time.Duration
-	Samples             int
-	Count               int
+	Histogram           []map[string]int // Frequency distribution of event durations in len(Histogram) buckets of HistogramBucketSize.
+	HistogramBucketSize time.Duration    // The width of a histogram bucket in time.
+	Samples             int              // Number of events included in the sample set.
+	Count               int              // Total number of events observed.
 }
 
 // New initializes a new Tachymeter.
