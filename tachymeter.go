@@ -19,7 +19,7 @@ type Config struct {
 	HBuckets int  // Histogram buckets.
 }
 
-// timeslice is used to hold time.Duration values.
+// timeslice holds time.Duration values.
 type timeSlice []time.Duration
 
 // Satisfy sort for timeSlice.

@@ -24,7 +24,7 @@ func (m *Tachymeter) Calc() *Metrics {
 	copy(times, m.Times[:metrics.Samples])
 	sort.Sort(times)
 
-	metrics.Time.Cumulative = calcTimeCumulative(times)
+	metrics.Time.Cumulative = times.cumulative()
 	var rateTime float64
 	if m.WallTime != 0 {
 		rateTime = float64(metrics.Count) / float64(m.WallTime)
@@ -36,17 +36,17 @@ func (m *Tachymeter) Calc() *Metrics {
 
 	m.Unlock()
 
-	metrics.Time.Avg = calcAvg(times)
-	metrics.Time.HMean = calcHMean(times)
-	metrics.Time.P50 = times[len(times)/2]
-	metrics.Time.P75 = calcP(times, 0.75)
-	metrics.Time.P95 = calcP(times, 0.95)
-	metrics.Time.P99 = calcP(times, 0.99)
-	metrics.Time.P999 = calcP(times, 0.999)
-	metrics.Time.Long5p = calcLong5p(times)
-	metrics.Time.Short5p = calcShort5p(times)
-	metrics.Time.Max = times[metrics.Samples-1]
-	metrics.Time.Min = times[0]
+	metrics.Time.Avg = times.avg()
+	metrics.Time.HMean = times.hMean()
+	metrics.Time.P50 = times[times.Len()/2]
+	metrics.Time.P75 = times.p(0.75)
+	metrics.Time.P95 = times.p(0.95)
+	metrics.Time.P99 = times.p(0.99)
+	metrics.Time.P999 = times.p(0.999)
+	metrics.Time.Long5p = times.long5p()
+	metrics.Time.Short5p = times.short5p()
+	metrics.Time.Min = times.min()
+	metrics.Time.Max = times.max()
 	metrics.Time.Range = metrics.Time.Max - metrics.Time.Min
 
 	var bSize time.Duration
@@ -108,42 +108,42 @@ func calcHgram(b int, t timeSlice, low, max, r time.Duration) ([]map[string]int,
 
 // These should be self-explanatory:
 
-func calcHMean(d []time.Duration) time.Duration {
+func (ts timeSlice) hMean() time.Duration {
 	var total float64
 
-	for _, t := range d {
+	for _, t := range ts {
 		total += (1 / float64(t))
 	}
 
-	return time.Duration(float64(len(d)) / total)
+	return time.Duration(float64(ts.Len()) / total)
 }
 
-func calcTimeCumulative(d []time.Duration) time.Duration {
+func (ts timeSlice) cumulative() time.Duration {
 	var total time.Duration
-	for _, t := range d {
+	for _, t := range ts {
 		total += t
 	}
 
 	return total
 }
 
-func calcAvg(d []time.Duration) time.Duration {
+func (ts timeSlice) avg() time.Duration {
 	var total time.Duration
-	for _, t := range d {
+	for _, t := range ts {
 		total += t
 	}
-	return time.Duration(int(total) / len(d))
+	return time.Duration(int(total) / ts.Len())
 }
 
-func calcP(d []time.Duration, p float64) time.Duration {
-	return d[int(float64(len(d))*p+0.5)-1]
+func (ts timeSlice) p(p float64) time.Duration {
+	return ts[int(float64(ts.Len())*p+0.5)-1]
 }
 
-func calcLong5p(d []time.Duration) time.Duration {
-	set := d[int(float64(len(d))*0.95+0.5):]
+func (ts timeSlice) long5p() time.Duration {
+	set := ts[int(float64(ts.Len())*0.95+0.5):]
 
 	if len(set) <= 1 {
-		return d[len(d)-1]
+		return ts[ts.Len()-1]
 	}
 
 	var t time.Duration
@@ -156,11 +156,11 @@ func calcLong5p(d []time.Duration) time.Duration {
 	return time.Duration(int(t) / i)
 }
 
-func calcShort5p(d []time.Duration) time.Duration {
-	set := d[:int(float64(len(d))*0.05+0.5)]
+func (ts timeSlice) short5p() time.Duration {
+	set := ts[:int(float64(ts.Len())*0.05+0.5)]
 
 	if len(set) <= 1 {
-		return d[0]
+		return ts[0]
 	}
 
 	var t time.Duration
@@ -171,4 +171,12 @@ func calcShort5p(d []time.Duration) time.Duration {
 	}
 
 	return time.Duration(int(t) / i)
+}
+
+func (ts timeSlice) min() time.Duration {
+	return ts[0]
+}
+
+func (ts timeSlice) max() time.Duration {
+	return ts[ts.Len()-1]
 }
