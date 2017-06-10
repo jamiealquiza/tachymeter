@@ -27,7 +27,7 @@ func (p timeSlice) Swap(i, j int) {
 // and returns it in the form of a *Metrics.
 func (m *Tachymeter) Calc() *Metrics {
 	metrics := &Metrics{}
-	if m.Count == 0 {
+	if atomic.LoadUint64(&m.Count) == 0 {
 		return metrics
 	}
 

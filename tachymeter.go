@@ -78,6 +78,9 @@ func New(c *Config) *Tachymeter {
 // Reset resets a Tachymeter
 // instance for reuse.
 func (m *Tachymeter) Reset() {
+	// This lock is obviously not needed for
+	// the m.Count update, rather to prevent a
+	// Tachymeter reset while Calc is being called.
 	m.Lock()
 	atomic.StoreUint64(&m.Count, 0)
 	m.Unlock()
