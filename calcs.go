@@ -47,30 +47,30 @@ func (m *Tachymeter) Calc() *Metrics {
 	metrics.Time.Short5p = times.short5p()
 	metrics.Time.Min = times.min()
 	metrics.Time.Max = times.max()
-	metrics.Time.Range = metrics.Time.Max - metrics.Time.Min
+	metrics.Time.Range = times.srange()
 
-	var bSize time.Duration
-	metrics.Histogram, bSize = calcHgram(m.HBuckets, times, metrics.Time.Min, metrics.Time.Max, metrics.Time.Range)
-	metrics.HistogramBucketSize = bSize
+	metrics.Histogram, metrics.HistogramBucketSize = times.hgram(m.HBuckets)
 
 	return metrics
 }
 
-// calcHgram returns a histogram of event durations t in b buckets,
-// along with the bucket size.
+// hgram returns a histogram of event durations in
+// b buckets, along with the bucket size.
 // A histogram bucket is a map["low-high duration"]count of events that
 // fall within the low / high range.
-func calcHgram(b int, t timeSlice, low, max, r time.Duration) ([]map[string]int, time.Duration) {
+func (ts timeSlice) hgram(b int) ([]map[string]int, time.Duration) {
 	// Interval is the time range / n buckets.
-	interval := time.Duration(int64(r) / int64(b))
-	high := low + interval
+	interval := time.Duration(int64(ts.srange()) / int64(b))
+	high := ts.min() + interval
+	low := ts.min()
+	max := ts.max()
 	hgram := []map[string]int{}
 	pos := 1 // Bucket position.
 
 	bstring := fmt.Sprintf("%s - %s", low, high)
 	bucket := map[string]int{}
 
-	for _, v := range t {
+	for _, v := range ts {
 		// If v fits in the current bucket,
 		// increment the bucket count.
 		if v <= high {
@@ -179,4 +179,8 @@ func (ts timeSlice) min() time.Duration {
 
 func (ts timeSlice) max() time.Duration {
 	return ts[ts.Len()-1]
+}
+
+func (ts timeSlice) srange() time.Duration {
+	return ts.max() - ts.min()
 }
