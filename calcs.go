@@ -8,21 +8,6 @@ import (
 	"time"
 )
 
-// Satisfy sort for timeSlice.
-// Sorts in increasing order of duration.
-
-func (p timeSlice) Len() int {
-	return len(p)
-}
-
-func (p timeSlice) Less(i, j int) bool {
-	return int64(p[i]) < int64(p[j])
-}
-
-func (p timeSlice) Swap(i, j int) {
-	p[i], p[j] = p[j], p[i]
-}
-
 // Calc summarizes Tachymeter sample data
 // and returns it in the form of a *Metrics.
 func (m *Tachymeter) Calc() *Metrics {

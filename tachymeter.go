@@ -22,6 +22,11 @@ type Config struct {
 // timeslice is used to hold time.Duration values.
 type timeSlice []time.Duration
 
+// Satisfy sort for timeSlice.
+func (p timeSlice) Len() int           { return len(p) }
+func (p timeSlice) Less(i, j int) bool { return int64(p[i]) < int64(p[j]) }
+func (p timeSlice) Swap(i, j int)      { p[i], p[j] = p[j], p[i] }
+
 // Tachymeter provides methods to collect
 // sample durations and produce summarized
 // latecy / rate output.
