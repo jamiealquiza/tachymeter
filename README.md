@@ -4,11 +4,13 @@
 
 Tachymeter simplifies the process of gathering summarized rate and latency information from a series of timed events: _"In a loop with 1,000 database calls, what was the 95%ile and lowest observed latency? What was the per-second rate?"_
 
+# Examples
+
+Code [examples](https://github.com/jamiealquiza/tachymeter/tree/master/example).
+
 # Usage
 
 After initializing a `tachymeter`, event durations in the form of [`time.Duration`](https://golang.org/pkg/time/#Duration) are added using the `AddTime(t time.Duration)` method. Once all desired timing have been collected, the data is summarized by calling the `Calc()` method (returning a [`*Metrics`](https://godoc.org/github.com/jamiealquiza/tachymeter#Metrics)). `*Metrics` fields can be accessed directly or via several [output methods](https://github.com/jamiealquiza/tachymeter#output-options).
-
-See further code [examples](https://github.com/jamiealquiza/tachymeter/tree/master/example).
 
 ```golang
 import "github.com/jamiealquiza/tachymeter"
