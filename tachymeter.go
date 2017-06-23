@@ -3,8 +3,11 @@
 package tachymeter
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
+	"math"
+	"strings"
 	"sync"
 	"sync/atomic"
 	"time"
@@ -19,14 +22,6 @@ type Config struct {
 	HBuckets int  // Histogram buckets.
 }
 
-// timeslice holds time.Duration values.
-type timeSlice []time.Duration
-
-// Satisfy sort for timeSlice.
-func (p timeSlice) Len() int           { return len(p) }
-func (p timeSlice) Less(i, j int) bool { return int64(p[i]) < int64(p[j]) }
-func (p timeSlice) Swap(i, j int)      { p[i], p[j] = p[j], p[i] }
-
 // Tachymeter holds event durations
 // and counts.
 type Tachymeter struct {
@@ -37,6 +32,18 @@ type Tachymeter struct {
 	WallTime time.Duration
 	HBuckets int
 }
+
+// timeslice holds time.Duration values.
+type timeSlice []time.Duration
+
+// Satisfy sort for timeSlice.
+func (p timeSlice) Len() int           { return len(p) }
+func (p timeSlice) Less(i, j int) bool { return int64(p[i]) < int64(p[j]) }
+func (p timeSlice) Swap(i, j int)      { p[i], p[j] = p[j], p[i] }
+
+// Histogram is a map["low-high duration"]count of events that
+// fall within the low-high time duration range.
+type Histogram []map[string]uint64
 
 // Metrics holds the calculated outputs
 // produced from a Tachymeter sample set.
@@ -61,10 +68,10 @@ type Metrics struct {
 		// If SetWallTime was called, event duration avg = wall time / Metrics.Count
 		Second float64
 	}
-	Histogram           []map[string]int // Frequency distribution of event durations in len(Histogram) buckets of HistogramBucketSize.
-	HistogramBucketSize time.Duration    // The width of a histogram bucket in time.
-	Samples             int              // Number of events included in the sample set.
-	Count               int              // Total number of events observed.
+	Histogram           *Histogram    // Frequency distribution of event durations in len(Histogram) buckets of HistogramBucketSize.
+	HistogramBucketSize time.Duration // The width of a histogram bucket in time.
+	Samples             int           // Number of events included in the sample set.
+	Count               int           // Total number of events observed.
 }
 
 // New initializes a new Tachymeter.
@@ -117,11 +124,11 @@ func (m *Metrics) WriteHTML(p string) error {
 
 // Dump prints a formatted Metrics output to console.
 func (m *Metrics) Dump() {
-	fmt.Println(m.DumpString())
+	fmt.Println(m.String())
 }
 
-// DumpString returns a formatted Metrics string.
-func (m *Metrics) DumpString() string {
+// String returns a formatted Metrics string.
+func (m *Metrics) String() string {
 	return fmt.Sprintf(`%d samples of %d events
 Cumulative:	%s
 HMean:		%s
@@ -188,7 +195,7 @@ func (m *Metrics) MarshalJSON() ([]byte, error) {
 		}
 		Samples   int
 		Count     int
-		Histogram []map[string]int
+		Histogram *Histogram
 	}{
 		Time: struct {
 			Cumulative string
@@ -226,4 +233,47 @@ func (m *Metrics) MarshalJSON() ([]byte, error) {
 		Samples:   m.Samples,
 		Count:     m.Count,
 	})
+}
+
+// Dump prints a formatted histogram output to console
+// scaled to a width of s.
+func (h *Histogram) Dump(s int) {
+	fmt.Println(h.String(s))
+}
+
+// String returns a formatted Metrics string scaled
+// to a width of s.
+func (h *Histogram) String(s int) string {
+	var min, max uint64 = math.MaxUint64, 0
+	// Get the histogram min/max counts.
+	for _, bucket := range *h {
+		for _, v := range bucket {
+			if v > max {
+				max = v
+			}
+			if v < min {
+				min = v
+			}
+		}
+	}
+
+	var b bytes.Buffer
+
+	// Build histogram string.
+	for _, bucket := range *h {
+		for k, v := range bucket {
+			// Get the bar length.
+			blen := scale(float64(v), float64(min), float64(max), 1, float64(s))
+			line := fmt.Sprintf("%15s %s\n", k, strings.Repeat("-", int(blen)))
+			b.WriteString(line)
+		}
+	}
+
+	return b.String()
+}
+
+// Scale scales the input x with the input-min a0,
+// input-max a1, output-min b0, and output-max b1.
+func scale(x float64, a0, a1, b0, b1 float64) float64 {
+	return (x-a0)/(a1-a0)*(b1-b0) + b0
 }
