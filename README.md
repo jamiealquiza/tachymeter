@@ -6,7 +6,7 @@ Tachymeter simplifies the process of gathering summarized rate and latency infor
 
 # Examples
 
-Code [examples](https://github.com/jamiealquiza/tachymeter/tree/master/example).
+Code [examples](https://github.com/jamiealquiza/tachymeter/tree/master/example). Tachymeter is also generic/simple enough to be used as a metrics foundation for loadtesting & benchmarking tools; see [Sangrenel](https://github.com/jamiealquiza/sangrenel).  
 
 # Usage
 
