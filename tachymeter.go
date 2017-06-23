@@ -19,14 +19,6 @@ type Config struct {
 	HBuckets int  // Histogram buckets.
 }
 
-// timeslice holds time.Duration values.
-type timeSlice []time.Duration
-
-// Satisfy sort for timeSlice.
-func (p timeSlice) Len() int           { return len(p) }
-func (p timeSlice) Less(i, j int) bool { return int64(p[i]) < int64(p[j]) }
-func (p timeSlice) Swap(i, j int)      { p[i], p[j] = p[j], p[i] }
-
 // Tachymeter holds event durations
 // and counts.
 type Tachymeter struct {
@@ -37,6 +29,18 @@ type Tachymeter struct {
 	WallTime time.Duration
 	HBuckets int
 }
+
+// timeslice holds time.Duration values.
+type timeSlice []time.Duration
+
+// Satisfy sort for timeSlice.
+func (p timeSlice) Len() int           { return len(p) }
+func (p timeSlice) Less(i, j int) bool { return int64(p[i]) < int64(p[j]) }
+func (p timeSlice) Swap(i, j int)      { p[i], p[j] = p[j], p[i] }
+
+// Histogram is a map["low-high duration"]count of events that
+// fall within the low-high time duration range.
+type Histogram []map[string]int
 
 // Metrics holds the calculated outputs
 // produced from a Tachymeter sample set.
@@ -61,10 +65,10 @@ type Metrics struct {
 		// If SetWallTime was called, event duration avg = wall time / Metrics.Count
 		Second float64
 	}
-	Histogram           []map[string]int // Frequency distribution of event durations in len(Histogram) buckets of HistogramBucketSize.
-	HistogramBucketSize time.Duration    // The width of a histogram bucket in time.
-	Samples             int              // Number of events included in the sample set.
-	Count               int              // Total number of events observed.
+	Histogram           *Histogram    // Frequency distribution of event durations in len(Histogram) buckets of HistogramBucketSize.
+	HistogramBucketSize time.Duration // The width of a histogram bucket in time.
+	Samples             int           // Number of events included in the sample set.
+	Count               int           // Total number of events observed.
 }
 
 // New initializes a new Tachymeter.
@@ -188,7 +192,7 @@ func (m *Metrics) MarshalJSON() ([]byte, error) {
 		}
 		Samples   int
 		Count     int
-		Histogram []map[string]int
+		Histogram *Histogram
 	}{
 		Time: struct {
 			Cumulative string

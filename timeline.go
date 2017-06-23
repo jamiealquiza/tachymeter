@@ -84,7 +84,7 @@ func genGraphHTML(te *timelineEvent, id int) string {
 	keys := []string{}
 	values := []int{}
 
-	for _, b := range te.Metrics.Histogram {
+	for _, b := range *te.Metrics.Histogram {
 		for k, v := range b {
 			keys = append(keys, k)
 			values = append(values, v)
