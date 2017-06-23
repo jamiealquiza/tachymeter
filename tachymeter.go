@@ -244,6 +244,10 @@ func (h *Histogram) Dump(s int) {
 // String returns a formatted Metrics string scaled
 // to a width of s.
 func (h *Histogram) String(s int) string {
+	if h == nil {
+		return ""
+	}
+
 	var min, max uint64 = math.MaxUint64, 0
 	// Get the histogram min/max counts.
 	for _, bucket := range *h {
