@@ -66,7 +66,7 @@ func (ts timeSlice) hgram(b int) (*Histogram, time.Duration) {
 	pos := 1 // Bucket position.
 
 	bstring := fmt.Sprintf("%s - %s", low, high)
-	bucket := map[string]int{}
+	bucket := map[string]uint64{}
 
 	for _, v := range ts {
 		// If v fits in the current bucket,
@@ -76,7 +76,7 @@ func (ts timeSlice) hgram(b int) (*Histogram, time.Duration) {
 		} else {
 			// If not, prepare the next bucket.
 			*hgram = append(*hgram, bucket)
-			bucket = map[string]int{}
+			bucket = map[string]uint64{}
 
 			// Update the high/low range values.
 			low = high + time.Nanosecond

@@ -40,7 +40,7 @@ func (p timeSlice) Swap(i, j int)      { p[i], p[j] = p[j], p[i] }
 
 // Histogram is a map["low-high duration"]count of events that
 // fall within the low-high time duration range.
-type Histogram []map[string]int
+type Histogram []map[string]uint64
 
 // Metrics holds the calculated outputs
 // produced from a Tachymeter sample set.

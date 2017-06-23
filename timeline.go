@@ -82,7 +82,7 @@ func (t *Timeline) WriteHTML(p string) error {
 // html element ID) and creates a chart.js graph output.
 func genGraphHTML(te *timelineEvent, id int) string {
 	keys := []string{}
-	values := []int{}
+	values := []uint64{}
 
 	for _, b := range *te.Metrics.Histogram {
 		for k, v := range b {
