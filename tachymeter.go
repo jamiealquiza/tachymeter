@@ -124,11 +124,11 @@ func (m *Metrics) WriteHTML(p string) error {
 
 // Dump prints a formatted Metrics output to console.
 func (m *Metrics) Dump() {
-	fmt.Println(m.DumpString())
+	fmt.Println(m.String())
 }
 
-// DumpString returns a formatted Metrics string.
-func (m *Metrics) DumpString() string {
+// String returns a formatted Metrics string.
+func (m *Metrics) String() string {
 	return fmt.Sprintf(`%d samples of %d events
 Cumulative:	%s
 HMean:		%s
@@ -238,12 +238,12 @@ func (m *Metrics) MarshalJSON() ([]byte, error) {
 // Dump prints a formatted histogram output to console
 // scaled to a width of s.
 func (h *Histogram) Dump(s int) {
-	fmt.Println(h.DumpString(s))
+	fmt.Println(h.String(s))
 }
 
-// DumpString returns a formatted Metrics string scaled
+// String returns a formatted Metrics string scaled
 // to a width of s.
-func (h *Histogram) DumpString(s int) string {
+func (h *Histogram) String(s int) string {
 	var min, max uint64 = math.MaxUint64, 0
 	// Get the histogram min/max counts.
 	for _, bucket := range *h {

@@ -55,7 +55,7 @@ func (t *Timeline) WriteHTML(p string) error {
 		// Info div.
 		b.WriteString(fmt.Sprintf(`%s<div class="info">%s`, tab, nl))
 		b.WriteString(fmt.Sprintf(`%s<p><h2>Iteration %d</h2>%s`, tab, n+1, nl))
-		b.WriteString(t.timeline[n].Metrics.DumpString())
+		b.WriteString(t.timeline[n].Metrics.String())
 		b.WriteString(fmt.Sprintf("%s%s</p></div>%s", nl, tab, nl))
 	}
 
