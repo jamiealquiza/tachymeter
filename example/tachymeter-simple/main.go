@@ -25,5 +25,8 @@ func main() {
 	fmt.Printf("%s\n\n", results.JSON())
 
 	// Print pre-formatted console output.
-	fmt.Println(results.String())
+	fmt.Printf("%s\n\n", results.String())
+
+	// Print text histogram.
+	fmt.Println(results.Histogram.String(15))
 }
