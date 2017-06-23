@@ -264,7 +264,7 @@ func (h *Histogram) String(s int) string {
 		for k, v := range bucket {
 			// Get the bar length.
 			blen := scale(float64(v), float64(min), float64(max), 1, float64(s))
-			line := fmt.Sprintf("%15s %s\n", k, strings.Repeat("-", int(blen)))
+			line := fmt.Sprintf("%20s %s\n", k, strings.Repeat("-", int(blen)))
 			b.WriteString(line)
 		}
 	}

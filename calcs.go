@@ -57,6 +57,7 @@ func (m *Tachymeter) Calc() *Metrics {
 // hgram returns a histogram of event durations in
 // b buckets, along with the bucket size.
 func (ts timeSlice) hgram(b int) (*Histogram, time.Duration) {
+	res := time.Duration(1000)
 	// Interval is the time range / n buckets.
 	interval := time.Duration(int64(ts.srange()) / int64(b))
 	high := ts.min() + interval
@@ -65,7 +66,7 @@ func (ts timeSlice) hgram(b int) (*Histogram, time.Duration) {
 	hgram := &Histogram{}
 	pos := 1 // Bucket position.
 
-	bstring := fmt.Sprintf("%s - %s", low/10*10, high/10*10)
+	bstring := fmt.Sprintf("%s - %s", low/res*res, high/res*res)
 	bucket := map[string]uint64{}
 
 	for _, v := range ts {
@@ -88,7 +89,7 @@ func (ts timeSlice) hgram(b int) (*Histogram, time.Duration) {
 				high = max
 			}
 
-			bstring = fmt.Sprintf("%s - %s", low/10*10, high/10*10)
+			bstring = fmt.Sprintf("%s - %s", low/res*res, high/res*res)
 
 			// The value didn't fit in the previous
 			// bucket, so the new bucket count should
