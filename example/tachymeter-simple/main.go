@@ -25,5 +25,5 @@ func main() {
 	fmt.Printf("%s\n\n", results.JSON())
 
 	// Print pre-formatted console output.
-	results.Dump()
+	fmt.Println(results.String())
 }
