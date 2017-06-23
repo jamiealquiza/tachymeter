@@ -3,8 +3,11 @@
 package tachymeter
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
+	"math"
+	"strings"
 	"sync"
 	"sync/atomic"
 	"time"
@@ -230,4 +233,47 @@ func (m *Metrics) MarshalJSON() ([]byte, error) {
 		Samples:   m.Samples,
 		Count:     m.Count,
 	})
+}
+
+// Dump prints a formatted histogram output to console
+// scaled to a width of s.
+func (h *Histogram) Dump(s int) {
+	fmt.Println(h.DumpString(s))
+}
+
+// DumpString returns a formatted Metrics string scaled
+// to a width of s.
+func (h *Histogram) DumpString(s int) string {
+	var min, max uint64 = math.MaxUint64, 0
+	// Get the histogram min/max counts.
+	for _, bucket := range *h {
+		for _, v := range bucket {
+			if v > max {
+				max = v
+			}
+			if v < min {
+				min = v
+			}
+		}
+	}
+
+	var b bytes.Buffer
+
+	// Build histogram string.
+	for _, bucket := range *h {
+		for k, v := range bucket {
+			// Get the bar length.
+			blen := scale(float64(v), float64(min), float64(max), 1, float64(s))
+			line := fmt.Sprintf("%15s %s\n", k, strings.Repeat("-", int(blen)))
+			b.WriteString(line)
+		}
+	}
+
+	return b.String()
+}
+
+// Scale scales the input x with the input-min a0,
+// input-max a1, output-min b0, and output-max b1.
+func scale(x float64, a0, a1, b0, b1 float64) float64 {
+	return (x-a0)/(a1-a0)*(b1-b0) + b0
 }

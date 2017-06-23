@@ -65,7 +65,7 @@ func (ts timeSlice) hgram(b int) (*Histogram, time.Duration) {
 	hgram := &Histogram{}
 	pos := 1 // Bucket position.
 
-	bstring := fmt.Sprintf("%s - %s", low, high)
+	bstring := fmt.Sprintf("%s - %s", low/10*10, high/10*10)
 	bucket := map[string]uint64{}
 
 	for _, v := range ts {
@@ -88,7 +88,7 @@ func (ts timeSlice) hgram(b int) (*Histogram, time.Duration) {
 				high = max
 			}
 
-			bstring = fmt.Sprintf("%s - %s", low, high)
+			bstring = fmt.Sprintf("%s - %s", low/10*10, high/10*10)
 
 			// The value didn't fit in the previous
 			// bucket, so the new bucket count should
