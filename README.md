@@ -95,7 +95,7 @@ Output:
 {"Time":{"Cumulative":"673.736214ms","HMean":"57.485µs","Avg":"13.474724ms","P50":"12.501677ms","P75":"19.974307ms","P95":"28.460246ms","P99":"30.101584ms","P999":"30.101584ms","Long5p":"29.505675ms","Short5p":"399.399µs","Max":"30.101584ms","Min":"2.145µs","Range":"30.099439ms"},"Rate":{"Second":74.21302129975754},"Samples":50,"Count":100,"Histogram":[{"2.145µs - 3.012088ms":5},{"3.012089ms - 6.022031ms":3},{"6.022032ms - 9.031974ms":11},{"9.031975ms - 12.041917ms":5},{"12.041918ms - 15.05186ms":8},{"15.051861ms - 18.061803ms":4},{"18.061804ms - 21.071746ms":2},{"21.071747ms - 24.081689ms":5},{"24.08169ms - 27.091632ms":3},{"27.091633ms - 30.101584ms":4}]}
 ```
 
-### `Metrics`: Pre-formatted string
+### `Metrics`: pre-formatted string
  ```golang
 fmt.Println(metrics.String())
  ```
@@ -119,8 +119,8 @@ Range:          30.134097ms
 Rate/sec.:      74.69
  ```
 
-### `Histogram`: Text format
-The `Histogram.String(int)` method generates a text version of the histogram. Histogram bar scaling is specified width `int`
+### `Histogram`: text format
+The `Histogram.String(int)` method generates a text version of the histogram. Histogram bar scaling is specified with width `int`.
 ```golang
 fmt.Println(metrics.Histogram.String(25))
 ```
