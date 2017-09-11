@@ -155,6 +155,8 @@ Tachymeter also provides a `Timeline` type that's used to gather a series of `*M
 
 Tachymeter is initialized with a `Size` parameter that specifies the max sample count that can be held. This is done to control resource usage and minimize the impact of tachymeter inside an application; the `AddTime` method is o(1) @ ~20ns on modern hardware. If the actual event count is smaller than or equal to the configured tachymeter size, all of the meaused events will be included in the calculated results. If the event count exceeds the tachymeter size, the oldest data will be overwritten. In this scenario, the last window of data (that fits into the configured `Size`) will be used for output calculations.
 
+Note the tradeoffs of this counting mechanism as a design choice; calculations are intended to be lossless within the data window, but the window size has upper limitations. If you're doing extremely high counts (either by sheer rate or by using long windows), you may benefit from a sketch counter (not currently supported).
+
 # Accurate Rates With Parallelism
 
 By default, tachymeter calcualtes rate based on the number of events possible per-second according to average event duration. This model doesn't work in asynchronous or parallelized scenarios since events may be overlapping in time. For example, with many Goroutines writing durations to a shared tachymeter in parallel, the global rate must be determined by using the total event count over the total wall time elapsed.
