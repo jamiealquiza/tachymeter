@@ -14,7 +14,7 @@ func main() {
 
 	// Run 3 iterations of a loop that we're
 	// interesting in summarizing with tachymeter.
-	for iter := 0; iter <3; iter++ {
+	for iter := 0; iter < 3; iter++ {
 		fmt.Printf("Running iteration %d\n", iter)
 		// Capture timing data from the loop.
 		for i := 0; i < 100; i++ {
@@ -28,7 +28,6 @@ func main() {
 		tl.AddEvent(c.Calc())
 		c.Reset()
 	}
-
 
 	// Write out an HTML page with the
 	// histogram for all iterations.

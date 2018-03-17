@@ -36,20 +36,21 @@ func main() {
 
 ```
 50 samples of 100 events
-Cumulative:     669.433006ms
-HMean:          47.477µs
-Avg.:           13.38866ms
-p50:            11.191119ms
-p75:            19.15929ms
-p95:            28.145686ms
-p99:            30.135862ms
-p999:           30.135862ms
-Long 5%:        29.156558ms
-Short 5%:       424.823µs
-Max:            30.135862ms
-Min:            1.765µs
-Range:          30.134097ms
-Rate/sec.:      74.69
+Cumulative:	671.871ms
+HMean:		125.38µs
+Avg.:		13.43742ms
+p50: 		13.165ms
+p75:		20.058ms
+p95:		27.536ms
+p99:		30.043ms
+p999:		30.043ms
+Long 5%:	29.749ms
+Short 5%:	399.666µs
+Max:		30.043ms
+Min:		4µs
+Range:		30.039ms
+StdDev:		8.385117ms
+Rate/sec.:	74.42
 ```
 
 ### Output Descriptions
@@ -63,6 +64,7 @@ Rate/sec.:      74.69
 - `Max`: Max observed event duration.
 - `Min`: Min observed event duration.
 - `Range`: The delta between the max and min sample time
+- `StdDev`: The population standard deviation
 - `Rate/sec.`: Per-second rate based on cumulative time and sample count.
 
 
@@ -83,7 +85,7 @@ fmt.Printf("Median latency: %s\n", metrics.Time.P50)
 
 Output:
 ```
-Median latency: 12.501677ms
+Median latency: 13.165ms
 ```
 
 ### `Metrics`: JSON string
@@ -92,31 +94,32 @@ fmt.Printf("%s\n\", metrics.JSON())
 ```
 Output:
 ```
-{"Time":{"Cumulative":"673.736214ms","HMean":"57.485µs","Avg":"13.474724ms","P50":"12.501677ms","P75":"19.974307ms","P95":"28.460246ms","P99":"30.101584ms","P999":"30.101584ms","Long5p":"29.505675ms","Short5p":"399.399µs","Max":"30.101584ms","Min":"2.145µs","Range":"30.099439ms"},"Rate":{"Second":74.21302129975754},"Samples":50,"Count":100,"Histogram":[{"2.145µs - 3.012088ms":5},{"3.012089ms - 6.022031ms":3},{"6.022032ms - 9.031974ms":11},{"9.031975ms - 12.041917ms":5},{"12.041918ms - 15.05186ms":8},{"15.051861ms - 18.061803ms":4},{"18.061804ms - 21.071746ms":2},{"21.071747ms - 24.081689ms":5},{"24.08169ms - 27.091632ms":3},{"27.091633ms - 30.101584ms":4}]}
+{"Time":{"Cumulative":"671.871ms","HMean":"125.38µs","Avg":"13.43742ms","P50":"13.165ms","P75":"20.058ms","P95":"27.536ms","P99":"30.043ms","P999":"30.043ms","Long5p":"29.749ms","Short5p":"399.666µs","Max":"30.043ms","Min":"4µs","Range":"30.039ms","StdDev":"8.385117ms"},"Rate":{"Second":74.41904770409796},"Samples":50,"Count":100,"Histogram":[{"4µs - 3.007ms":5},{"3.007ms - 6.011ms":4},{"6.011ms - 9.015ms":10},{"9.015ms - 12.019ms":6},{"12.019ms - 15.023ms":7},{"15.023ms - 18.027ms":3},{"18.027ms - 21.031ms":4},{"21.031ms - 24.035ms":3},{"24.035ms - 27.039ms":3},{"27.039ms - 30.043ms":5}]}
 ```
 
 ### `Metrics`: pre-formatted string
  ```golang
 fmt.Println(metrics.String())
  ```
- 
+
  Output:
  ```
- 50 samples of 100 events
-Cumulative:     669.433006ms
-HMean:          47.477µs
-Avg.:           13.38866ms
-p50:            11.191119ms
-p75:            19.15929ms
-p95:            28.145686ms
-p99:            30.135862ms
-p999:           30.135862ms
-Long 5%:        29.156558ms
-Short 5%:       424.823µs
-Max:            30.135862ms
-Min:            1.765µs
-Range:          30.134097ms
-Rate/sec.:      74.69
+50 samples of 100 events
+Cumulative:	671.871ms
+HMean:		125.38µs
+Avg.:		13.43742ms
+p50: 		13.165ms
+p75:		20.058ms
+p95:		27.536ms
+p99:		30.043ms
+p999:		30.043ms
+Long 5%:	29.749ms
+Short 5%:	399.666µs
+Max:		30.043ms
+Min:		4µs
+Range:		30.039ms
+StdDev:		8.385117ms
+Rate/sec.:	74.42
  ```
 
 ### `Histogram`: text format
@@ -127,16 +130,16 @@ fmt.Println(metrics.Histogram.String(25))
 
 Output:
 ```
-   4ms - 12.9ms -------------------------
-12.9ms - 21.8ms -------------------------
-21.8ms - 30.7ms -
-30.7ms - 39.6ms ----------
-39.6ms - 48.5ms -----
-48.5ms - 57.4ms -----
-57.4ms - 66.3ms -
-66.3ms - 75.2ms -
-75.2ms - 84.1ms -----
-  84.1ms - 93ms -------------------------
+       4µs - 3.007ms -----
+   3.007ms - 6.011ms ---
+   6.011ms - 9.015ms ---------------
+  9.015ms - 12.019ms -------
+ 12.019ms - 15.023ms ---------
+ 15.023ms - 18.027ms -
+ 18.027ms - 21.031ms ---
+ 21.031ms - 24.035ms -
+ 24.035ms - 27.039ms -
+ 27.039ms - 30.043ms -----
 ```
 
 ### `Histogram`: HTML graphs
@@ -145,21 +148,21 @@ A `Histogram` can be written as HTML histograms. The `Metrics.WriteHTML(p string
  ```golang
  err := metrics.WriteHTML(".")
  ```
- 
+
  Output:
-![ss](https://cloud.githubusercontent.com/assets/4108044/25826873/c40d62b8-3405-11e7-9dec-047d1e0c6f42.png)
+![ss](https://user-images.githubusercontent.com/4108044/37558972-a40374f2-29e2-11e8-9df2-60b2927a8fa4.png)
 
 Tachymeter also provides a `Timeline` type that's used to gather a series of `*Metrics` (each `*Metrics` themselves holding data summarizing a series of measured events). `*Metrics` are added to a `*Timeline` using the `AddEvent(m *Metrics)` method. Once the desired number of `*Metrics` has been collected, `WriteHTML` can be called on the `*Timeline`, resulting in an single HTML page with a histogram for each captured `*Metrics`. An example use case may be a benchmark where tachymeter is used to summarize the timing results of a loop, but several iterations of the loop are to be called in series. See the [tachymeter-graphing example](https://github.com/jamiealquiza/tachymeter/tree/master/example/tachymeter-graphing) for further details.
 
 ### Configuration
 
-Tachymeter is initialized with a `Size` parameter that specifies the max sample count that can be held. This is done to control resource usage and minimize the impact of tachymeter inside an application; the `AddTime` method is o(1) @ ~20ns on modern hardware. If the actual event count is smaller than or equal to the configured tachymeter size, all of the meaused events will be included in the calculated results. If the event count exceeds the tachymeter size, the oldest data will be overwritten. In this scenario, the last window of data (that fits into the configured `Size`) will be used for output calculations.
+Tachymeter is initialized with a `Size` parameter that specifies the max sample count that can be held. This is done to control resource usage and minimize the impact of tachymeter inside an application; the `AddTime` method should be a sub-microsecond o(1) on modern hardware. If the actual event count is smaller than or equal to the configured tachymeter size, all of the measured events will be included in the calculated results. If the event count exceeds the tachymeter size, the oldest data will be overwritten. In this scenario, the last window of data (that fits into the configured `Size`) will be used for output calculations.
 
 Note the tradeoffs of this counting mechanism as a design choice; calculations are intended to be lossless within the data window, but the window size has upper limitations. If you're doing extremely high counts (either by sheer rate or by using long windows), you may benefit from a sketch counter (not currently supported).
 
 # Accurate Rates With Parallelism
 
-By default, tachymeter calcualtes rate based on the number of events possible per-second according to average event duration. This model doesn't work in asynchronous or parallelized scenarios since events may be overlapping in time. For example, with many Goroutines writing durations to a shared tachymeter in parallel, the global rate must be determined by using the total event count over the total wall time elapsed.
+By default, tachymeter calculates rate based on the number of events possible per-second according to average event duration. This model doesn't work in asynchronous or parallelized scenarios since events may be overlapping in time. For example, with many Goroutines writing durations to a shared tachymeter in parallel, the global rate must be determined by using the total event count over the total wall time elapsed.
 
 Tachymeter exposes a `SetWallTime` method for these scenarios.
 
@@ -175,18 +178,18 @@ func main() {
     // Start wall time for all Goroutines.
     wallTimeStart := time.Now()
     var wg sync.WaitGroup
-    
+
     // Run tasks.
     for i := 0; i < 5; i++ {
         wg.Add(1)
         go someTask(t, wg)
     }
-    
+
     wg.Wait()
 
     // When finished, set elapsed wall time.
     t.SetWallTime(time.Since(wallTimeStart))
-    
+
     // Rate outputs will be accurate.
     fmt.Println(t.Calc().String())
 }
@@ -194,7 +197,7 @@ func main() {
 func someTask(t *tachymeter.Tachymeter, wg *sync.WaitGroup) {
     defer wg.Done()
     start := time.Now()
-    
+
     // doSomeSlowDbCall()
 
     // Task we're timing added here.

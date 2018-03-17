@@ -17,9 +17,9 @@ import (
 // parameters. Size defines the sample capacity.
 // Tachymeter is thread safe.
 type Config struct {
-	Size     int
-	Safe     bool // Deprecated. Flag held on to as to not break existing users.
-	HBuckets int  // Histogram buckets.
+	Size  int
+	Safe  bool // Deprecated. Flag held on to as to not break existing users.
+	HBins int  // Histogram bins.
 }
 
 // Tachymeter holds event durations
@@ -30,7 +30,7 @@ type Tachymeter struct {
 	Times    timeSlice
 	Count    uint64
 	WallTime time.Duration
-	HBuckets int
+	HBins    int
 }
 
 // timeslice holds time.Duration values.
@@ -61,6 +61,7 @@ type Metrics struct {
 		Short5p    time.Duration // Average of the shortest 5% event durations.
 		Max        time.Duration // Highest event duration.
 		Min        time.Duration // Lowest event duration.
+		StdDev     time.Duration // Standard deviation.
 		Range      time.Duration // Event duration range (Max-Min).
 	}
 	Rate struct {
@@ -68,25 +69,25 @@ type Metrics struct {
 		// If SetWallTime was called, event duration avg = wall time / Metrics.Count
 		Second float64
 	}
-	Histogram           *Histogram    // Frequency distribution of event durations in len(Histogram) buckets of HistogramBucketSize.
-	HistogramBucketSize time.Duration // The width of a histogram bucket in time.
-	Samples             int           // Number of events included in the sample set.
-	Count               int           // Total number of events observed.
+	Histogram        *Histogram    // Frequency distribution of event durations in len(Histogram) bins of HistogramBinSize.
+	HistogramBinSize time.Duration // The width of a histogram bin in time.
+	Samples          int           // Number of events included in the sample set.
+	Count            int           // Total number of events observed.
 }
 
 // New initializes a new Tachymeter.
 func New(c *Config) *Tachymeter {
 	var hSize int
-	if c.HBuckets != 0 {
-		hSize = c.HBuckets
+	if c.HBins != 0 {
+		hSize = c.HBins
 	} else {
 		hSize = 10
 	}
 
 	return &Tachymeter{
-		Size:     uint64(c.Size),
-		Times:    make([]time.Duration, c.Size),
-		HBuckets: hSize,
+		Size:  uint64(c.Size),
+		Times: make([]time.Duration, c.Size),
+		HBins: hSize,
 	}
 }
 
@@ -143,6 +144,7 @@ Short 5%%:	%s
 Max:		%s
 Min:		%s
 Range:		%s
+StdDev:		%s
 Rate/sec.:	%.2f`,
 		m.Samples,
 		m.Count,
@@ -159,6 +161,7 @@ Rate/sec.:	%.2f`,
 		m.Time.Max,
 		m.Time.Min,
 		m.Time.Range,
+		m.Time.StdDev,
 		m.Rate.Second)
 }
 
@@ -189,6 +192,7 @@ func (m *Metrics) MarshalJSON() ([]byte, error) {
 			Max        string
 			Min        string
 			Range      string
+			StdDev     string
 		}
 		Rate struct {
 			Second float64
@@ -211,6 +215,7 @@ func (m *Metrics) MarshalJSON() ([]byte, error) {
 			Max        string
 			Min        string
 			Range      string
+			StdDev     string
 		}{
 			Cumulative: m.Time.Cumulative.String(),
 			HMean:      m.Time.HMean.String(),
@@ -225,6 +230,7 @@ func (m *Metrics) MarshalJSON() ([]byte, error) {
 			Max:        m.Time.Max.String(),
 			Min:        m.Time.Min.String(),
 			Range:      m.Time.Range.String(),
+			StdDev:     m.Time.StdDev.String(),
 		},
 		Rate: struct{ Second float64 }{
 			Second: m.Rate.Second,
@@ -250,8 +256,8 @@ func (h *Histogram) String(s int) string {
 
 	var min, max uint64 = math.MaxUint64, 0
 	// Get the histogram min/max counts.
-	for _, bucket := range *h {
-		for _, v := range bucket {
+	for _, bin := range *h {
+		for _, v := range bin {
 			if v > max {
 				max = v
 			}
@@ -264,8 +270,8 @@ func (h *Histogram) String(s int) string {
 	var b bytes.Buffer
 
 	// Build histogram string.
-	for _, bucket := range *h {
-		for k, v := range bucket {
+	for _, bin := range *h {
+		for k, v := range bin {
 			// Get the bar length.
 			blen := scale(float64(v), float64(min), float64(max), 1, float64(s))
 			line := fmt.Sprintf("%20s %s\n", k, strings.Repeat("-", int(blen)))
