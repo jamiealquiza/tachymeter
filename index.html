@@ -51,20 +51,21 @@
 	<div class="info">
 	<p><h2>Iteration 1</h2>
 50 samples of 100 events
-Cumulative:	722.290876ms
-HMean:		83.957µs
-Avg.:		14.445817ms
-p50: 		13.891752ms
-p75:		20.483732ms
-p95:		29.136968ms
-p99:		31.158494ms
-p999:		31.158494ms
-Long 5%:	30.483823ms
-Short 5%:	456.79µs
-Max:		31.158494ms
-Min:		3.282µs
-Range:		31.155212ms
-Rate/sec.:	69.22
+Cumulative:	651.338ms
+HMean:		84.836µs
+Avg.:		13.02676ms
+p50: 		11.155ms
+p75:		19.083ms
+p95:		27.06ms
+p99:		28.011ms
+p999:		28.011ms
+Long 5%:	27.6645ms
+Short 5%:	397.333µs
+Max:		28.011ms
+Min:		3µs
+Range:		28.008ms
+StdDev:		7.9665ms
+Rate/sec.:	76.77
 	</p></div>
 	<div class="graph">
 		<canvas id="canvas-1"></canvas>
@@ -72,20 +73,21 @@ Rate/sec.:	69.22
 	<div class="info">
 	<p><h2>Iteration 2</h2>
 50 samples of 100 events
-Cumulative:	625.973097ms
-HMean:		24.266µs
-Avg.:		12.519461ms
-p50: 		11.046953ms
-p75:		21.116783ms
-p95:		29.148147ms
-p99:		30.146361ms
-p999:		30.146361ms
-Long 5%:	30.091805ms
-Short 5%:	2.01µs
-Max:		30.146361ms
-Min:		1.903µs
-Range:		30.144458ms
-Rate/sec.:	79.88
+Cumulative:	658.717ms
+HMean:		42.006µs
+Avg.:		13.17434ms
+p50: 		11.097ms
+p75:		21.391ms
+p95:		29.56ms
+p99:		33.592ms
+p999:		33.592ms
+Long 5%:	33.3245ms
+Short 5%:	3.333µs
+Max:		33.592ms
+Min:		3µs
+Range:		33.589ms
+StdDev:		10.009968ms
+Rate/sec.:	75.91
 	</p></div>
 	<div class="graph">
 		<canvas id="canvas-2"></canvas>
@@ -93,20 +95,21 @@ Rate/sec.:	79.88
 	<div class="info">
 	<p><h2>Iteration 3</h2>
 50 samples of 100 events
-Cumulative:	690.325789ms
-HMean:		45.769µs
-Avg.:		13.806515ms
-p50: 		14.12478ms
-p75:		20.421235ms
-p95:		28.144108ms
-p99:		30.145445ms
-p999:		30.145445ms
-Long 5%:	29.767675ms
-Short 5%:	2.926µs
-Max:		30.145445ms
-Min:		2.025µs
-Range:		30.14342ms
-Rate/sec.:	72.43
+Cumulative:	662.903ms
+HMean:		54.15µs
+Avg.:		13.25806ms
+p50: 		13.125ms
+p75:		20.264ms
+p95:		27.096ms
+p99:		29.085ms
+p999:		29.085ms
+Long 5%:	29.08ms
+Short 5%:	3.333µs
+Max:		29.085ms
+Min:		3µs
+Range:		29.082ms
+StdDev:		8.483276ms
+Rate/sec.:	75.43
 	</p></div>
 
 
@@ -115,10 +118,10 @@ Rate/sec.:	72.43
 	var myChart = new Chart(ctx, {
 	    type: 'bar',
 	    data: {
-	        labels: ["3.282µs - 3.118803ms","3.118804ms - 6.234324ms","6.234325ms - 9.349845ms","9.349846ms - 12.465366ms","12.465367ms - 15.580887ms","15.580888ms - 18.696408ms","18.696409ms - 21.811929ms","21.81193ms - 24.92745ms","24.927451ms - 28.042971ms","28.042972ms - 31.158494ms"],
+	        labels: ["3µs - 2.803ms","2.803ms - 5.604ms","5.604ms - 8.405ms","8.405ms - 11.206ms","11.206ms - 14.007ms","14.007ms - 16.807ms","16.807ms - 19.608ms","19.608ms - 22.409ms","22.409ms - 25.21ms","25.21ms - 28.011ms"],
 	        datasets: [{
 	            label: 'Events',
-	            data: [5,4,7,7,7,4,5,2,3,6],
+	            data: [5,4,7,10,6,2,4,2,4,6],
 	            backgroundColor: "rgba(49, 77, 114, 0.76)"
 	        }]
 	    },
@@ -141,10 +144,10 @@ Rate/sec.:	72.43
 	var myChart = new Chart(ctx, {
 	    type: 'bar',
 	    data: {
-	        labels: ["1.903µs - 3.016348ms","3.016349ms - 6.030793ms","6.030794ms - 9.045238ms","9.045239ms - 12.059683ms","12.059684ms - 15.074128ms","15.074129ms - 18.088573ms","18.088574ms - 21.103018ms","21.103019ms - 24.117463ms","24.117464ms - 27.131908ms","27.131909ms - 30.146361ms"],
+	        labels: ["3µs - 3.361ms","3.361ms - 6.72ms","6.72ms - 10.079ms","10.079ms - 13.438ms","13.438ms - 16.797ms","16.797ms - 20.156ms","20.156ms - 23.515ms","23.515ms - 26.874ms","26.874ms - 30.233ms","30.233ms - 33.592ms"],
 	        datasets: [{
 	            label: 'Events',
-	            data: [7,10,5,6,3,3,3,6,2,5],
+	            data: [11,8,5,5,3,3,5,3,5,2],
 	            backgroundColor: "rgba(49, 77, 114, 0.76)"
 	        }]
 	    },
@@ -167,10 +170,10 @@ Rate/sec.:	72.43
 	var myChart = new Chart(ctx, {
 	    type: 'bar',
 	    data: {
-	        labels: ["2.025µs - 3.016367ms","3.016368ms - 6.030709ms","6.03071ms - 9.045051ms","9.045052ms - 12.059393ms","12.059394ms - 15.073735ms","15.073736ms - 18.088077ms","18.088078ms - 21.102419ms","21.10242ms - 24.116761ms","24.116762ms - 27.131103ms","27.131104ms - 30.145445ms"],
+	        labels: ["3µs - 2.911ms","2.911ms - 5.819ms","5.819ms - 8.727ms","8.727ms - 11.635ms","11.635ms - 14.544ms","14.544ms - 17.452ms","17.452ms - 20.36ms","20.36ms - 23.268ms","23.268ms - 26.176ms","26.176ms - 29.085ms"],
 	        datasets: [{
 	            label: 'Events',
-	            data: [7,6,2,5,8,5,5,4,5,3],
+	            data: [7,6,4,5,6,5,5,4,5,3],
 	            backgroundColor: "rgba(49, 77, 114, 0.76)"
 	        }]
 	    },
