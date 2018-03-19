@@ -267,6 +267,15 @@ func (h *Histogram) String(s int) string {
 		}
 	}
 
+	// Handle cases of no or
+	// a single bin.
+	switch len(*h) {
+	case 0:
+		return ""
+	case 1:
+		min = 0
+	}
+
 	var b bytes.Buffer
 
 	// Build histogram string.
@@ -284,6 +293,6 @@ func (h *Histogram) String(s int) string {
 
 // Scale scales the input x with the input-min a0,
 // input-max a1, output-min b0, and output-max b1.
-func scale(x float64, a0, a1, b0, b1 float64) float64 {
+func scale(x, a0, a1, b0, b1 float64) float64 {
 	return (x-a0)/(a1-a0)*(b1-b0) + b0
 }
