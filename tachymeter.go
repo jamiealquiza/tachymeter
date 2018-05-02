@@ -294,5 +294,12 @@ func (h *Histogram) String(s int) string {
 // Scale scales the input x with the input-min a0,
 // input-max a1, output-min b0, and output-max b1.
 func scale(x, a0, a1, b0, b1 float64) float64 {
-	return (x-a0)/(a1-a0)*(b1-b0) + b0
+	a, b := x-a0, a1-a0
+	var c float64
+	if a == 0 {
+		c = 0
+	} else {
+		c = a / b
+	}
+	return c*(b1-b0) + b0
 }
