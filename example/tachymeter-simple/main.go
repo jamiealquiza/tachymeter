@@ -14,7 +14,7 @@ func main() {
 	// Measure events.
 	for i := 0; i < 100; i++ {
 		start := time.Now()
-		time.Sleep(time.Duration(rand.Intn(30)) * time.Millisecond)
+		time.Sleep(time.Duration(rand.Intn(999)) * time.Millisecond)
 		c.AddTime(time.Since(start))
 	}
 
@@ -28,5 +28,5 @@ func main() {
 	fmt.Printf("%s\n\n", results.String())
 
 	// Print text histogram.
-	fmt.Println(results.Histogram.String(15))
+	fmt.Println(results.Histogram.String(25))
 }
