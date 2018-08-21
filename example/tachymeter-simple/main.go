@@ -14,7 +14,7 @@ func main() {
 	// Measure events.
 	for i := 0; i < 100; i++ {
 		start := time.Now()
-		time.Sleep(time.Duration(rand.Intn(999)) * time.Millisecond)
+		time.Sleep(time.Duration(rand.Intn(30)) * time.Millisecond)
 		c.AddTime(time.Since(start))
 	}
 
