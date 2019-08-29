@@ -123,12 +123,7 @@ func (m *Metrics) WriteHTML(p string) error {
 	return w.WriteHTML(p)
 }
 
-// Dump prints a formatted Metrics output to console.
-func (m *Metrics) Dump() {
-	fmt.Println(m.String())
-}
-
-// String returns a formatted Metrics string.
+// String satisfies the String interface.
 func (m *Metrics) String() string {
 	return fmt.Sprintf(`%d samples of %d events
 Cumulative:	%s
@@ -239,12 +234,6 @@ func (m *Metrics) MarshalJSON() ([]byte, error) {
 		Samples:   m.Samples,
 		Count:     m.Count,
 	})
-}
-
-// Dump prints a formatted histogram output to console
-// scaled to a width of s.
-func (h *Histogram) Dump(s int) {
-	fmt.Println(h.String(s))
 }
 
 // String returns a formatted Metrics string scaled

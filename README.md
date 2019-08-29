@@ -31,8 +31,8 @@ func main() {
     }
 
     // The timing summaries are calculated
-    // and dumped to console.
-    fmt.Println(t.Calc().String())
+    // and printed to console.
+    fmt.Println(t.Calc())
 }
 ```
 
@@ -101,7 +101,7 @@ Output:
 
 ### `Metrics`: pre-formatted, multi-line string
  ```golang
-fmt.Println(metrics.String())
+fmt.Println(metrics)
  ```
 
  Output:

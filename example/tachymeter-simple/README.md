@@ -34,7 +34,7 @@ func main() {
 	fmt.Printf("%s\n\n", results.JSON())
 
 	// Print pre-formatted console output.
-	fmt.Printf("%s\n\n", results.String())
+	fmt.Printf("%s\n\n", results)
 
 	// Print text histogram.
 	fmt.Println(results.Histogram.String(15))
