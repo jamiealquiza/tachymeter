@@ -9,6 +9,7 @@ import (
 	"math"
 	"strings"
 	"sync"
+	"sync/atomic"
 	"time"
 )
 
@@ -24,12 +25,12 @@ type Config struct {
 // Tachymeter holds event durations
 // and counts.
 type Tachymeter struct {
-	sync.Mutex
-	Size     uint64
-	Times    timeSlice
-	Count    uint64
-	WallTime time.Duration
-	HBins    int
+	size     uint64
+	times    []atomic.Int64 // Ring buffer of event durations.
+	count    atomic.Uint64
+	wallTime atomic.Int64
+	hBins    int
+	mu       sync.Mutex // Serializes Calc and Reset.
 }
 
 // timeslice holds time.Duration values.
@@ -89,9 +90,9 @@ func New(c *Config) *Tachymeter {
 	}
 
 	return &Tachymeter{
-		Size:  uint64(size),
-		Times: make([]time.Duration, size),
-		HBins: hBins,
+		size:  uint64(size),
+		times: make([]atomic.Int64, size),
+		hBins: hBins,
 	}
 }
 
@@ -99,18 +100,15 @@ func New(c *Config) *Tachymeter {
 // clearing the event count and any wall time set
 // with SetWallTime.
 func (m *Tachymeter) Reset() {
-	m.Lock()
-	m.Count = 0
-	m.WallTime = 0
-	m.Unlock()
+	m.mu.Lock()
+	m.count.Store(0)
+	m.wallTime.Store(0)
+	m.mu.Unlock()
 }
 
 // AddTime adds a time.Duration to Tachymeter.
 func (m *Tachymeter) AddTime(t time.Duration) {
-	m.Lock()
-	m.Times[m.Count%m.Size] = t
-	m.Count++
-	m.Unlock()
+	m.times[(m.count.Add(1)-1)%m.size].Store(int64(t))
 }
 
 // SetWallTime optionally sets an elapsed wall time duration.
@@ -118,9 +116,7 @@ func (m *Tachymeter) AddTime(t time.Duration) {
 // This is useful for concurrent/parallelized events that overlap
 // in wall time and are writing to a shared Tachymeter instance.
 func (m *Tachymeter) SetWallTime(t time.Duration) {
-	m.Lock()
-	m.WallTime = t
-	m.Unlock()
+	m.wallTime.Store(int64(t))
 }
 
 // WriteHTML writes a histograph

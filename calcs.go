@@ -14,24 +14,27 @@ func (m *Tachymeter) Calc() *Metrics {
 
 	// Take a snapshot of the sample
 	// window and counts.
-	m.Lock()
+	m.mu.Lock()
 
-	if m.Count == 0 {
-		m.Unlock()
+	count := m.count.Load()
+	if count == 0 {
+		m.mu.Unlock()
 		return metrics
 	}
 
-	metrics.Count = int(m.Count)
+	metrics.Count = int(count)
 	metrics.Samples = metrics.Count
-	if m.Count > m.Size {
-		metrics.Samples = int(m.Size)
+	if count > m.size {
+		metrics.Samples = int(m.size)
 	}
 
 	times := make(timeSlice, metrics.Samples)
-	copy(times, m.Times[:metrics.Samples])
-	wallTime := m.WallTime
+	for i := range times {
+		times[i] = time.Duration(m.times[i].Load())
+	}
+	wallTime := time.Duration(m.wallTime.Load())
 
-	m.Unlock()
+	m.mu.Unlock()
 
 	sort.Sort(times)
 
@@ -61,7 +64,7 @@ func (m *Tachymeter) Calc() *Metrics {
 	metrics.Time.Range = times.srange()
 	metrics.Time.StdDev = times.stdDev()
 
-	metrics.Histogram, metrics.HistogramBinSize = times.hgram(m.HBins)
+	metrics.Histogram, metrics.HistogramBinSize = times.hgram(m.hBins)
 
 	return metrics
 }
