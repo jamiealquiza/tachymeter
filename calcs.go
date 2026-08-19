@@ -3,8 +3,7 @@ package tachymeter
 import (
 	"fmt"
 	"math"
-	"sort"
-	"sync/atomic"
+	"slices"
 	"time"
 )
 
@@ -12,33 +11,45 @@ import (
 // and returns it in the form of a *Metrics.
 func (m *Tachymeter) Calc() *Metrics {
 	metrics := &Metrics{}
-	if atomic.LoadUint64(&m.Count) == 0 {
+
+	// Take a snapshot of the sample
+	// window and counts.
+	m.mu.Lock()
+
+	count := m.count.Load()
+	if count == 0 {
+		m.mu.Unlock()
 		return metrics
 	}
 
-	m.Lock()
+	metrics.Count = int(count)
+	metrics.Samples = int(min(count, m.size))
 
-	metrics.Samples = int(math.Min(float64(atomic.LoadUint64(&m.Count)), float64(m.Size)))
-	metrics.Count = int(atomic.LoadUint64(&m.Count))
 	times := make(timeSlice, metrics.Samples)
-	copy(times, m.Times[:metrics.Samples])
-	sort.Sort(times)
+	for i := range times {
+		times[i] = time.Duration(m.times[i].Load())
+	}
+	wallTime := time.Duration(m.wallTime.Load())
+
+	m.mu.Unlock()
+
+	slices.Sort(times)
 
 	metrics.Time.Cumulative = times.cumulative()
+
 	var rateTime float64
-	if m.WallTime != 0 {
-		rateTime = float64(metrics.Count) / float64(m.WallTime)
-	} else {
+	switch {
+	case wallTime != 0:
+		rateTime = float64(metrics.Count) / float64(wallTime)
+	case metrics.Time.Cumulative != 0:
 		rateTime = float64(metrics.Samples) / float64(metrics.Time.Cumulative)
 	}
 
 	metrics.Rate.Second = rateTime * 1e9
 
-	m.Unlock()
-
 	metrics.Time.Avg = times.avg()
 	metrics.Time.HMean = times.hMean()
-	metrics.Time.P50 = times[times.Len()/2]
+	metrics.Time.P50 = times.p(0.50)
 	metrics.Time.P75 = times.p(0.75)
 	metrics.Time.P95 = times.p(0.95)
 	metrics.Time.P99 = times.p(0.99)
@@ -50,7 +61,7 @@ func (m *Tachymeter) Calc() *Metrics {
 	metrics.Time.Range = times.srange()
 	metrics.Time.StdDev = times.stdDev()
 
-	metrics.Histogram, metrics.HistogramBinSize = times.hgram(m.HBins)
+	metrics.Histogram, metrics.HistogramBinSize = times.hgram(m.hBins)
 
 	return metrics
 }
@@ -58,56 +69,46 @@ func (m *Tachymeter) Calc() *Metrics {
 // hgram returns a histogram of event durations in
 // b bins, along with the bin size.
 func (ts timeSlice) hgram(b int) (*Histogram, time.Duration) {
-	res := time.Duration(1000)
-	// Interval is the time range / n bins.
-	interval := time.Duration(int64(ts.srange()) / int64(b))
-	high := ts.min() + interval
-	low := ts.min()
-	max := ts.max()
-	hgram := &Histogram{}
-	pos := 1 // Bin position.
+	low, high := ts.min(), ts.max()
 
-	bstring := fmt.Sprintf("%s - %s", low/res*res, high/res*res)
-	bin := map[string]uint64{}
-
-	for _, v := range ts {
-		// If v fits in the current bin,
-		// increment the bin count.
-		if v <= high {
-			bin[bstring]++
-		} else {
-			// If not, prepare the next bin.
-			*hgram = append(*hgram, bin)
-			bin = map[string]uint64{}
-
-			// Update the high/low range values.
-			low = high + time.Nanosecond
-
-			high += interval
-			// if we're going into the
-			// last bin, set high to max.
-			if pos == b-1 {
-				high = max
-			}
-
-			bstring = fmt.Sprintf("%s - %s", low/res*res, high/res*res)
-
-			// The value didn't fit in the previous
-			// bin, so the new bin count should
-			// be incremented.
-			bin[bstring]++
-
-			pos++
-		}
+	// Interval is the time range / n bins. A zero
+	// interval (all samples within b nanoseconds of
+	// each other) is raised to 1ns so that bins
+	// cover a non-zero range.
+	interval := (high - low) / time.Duration(b)
+	if interval == 0 {
+		interval = time.Nanosecond
 	}
 
-	*hgram = append(*hgram, bin)
+	// Tally each event in the bin
+	// covering its duration.
+	counts := make([]uint64, b)
+	for _, v := range ts {
+		// The max value lands on the top boundary
+		// of the last bin; clamp it in.
+		bin := min(int((v-low)/interval), b-1)
+		counts[bin]++
+	}
 
-	return hgram, interval
+	// Label each bin with the duration range it
+	// covers, truncated to microsecond resolution.
+	const res = time.Microsecond
+	hgram := make(Histogram, b)
+	for i := range hgram {
+		binLow := low + time.Duration(i)*interval
+		binHigh := binLow + interval
+		if i == b-1 {
+			binHigh = high
+		}
+
+		label := fmt.Sprintf("%s - %s", binLow/res*res, binHigh/res*res)
+		hgram[i] = map[string]uint64{label: counts[i]}
+	}
+
+	return &hgram, interval
 }
 
-// These should be self-explanatory:
-
+// cumulative returns the sum of all event durations.
 func (ts timeSlice) cumulative() time.Duration {
 	var total time.Duration
 	for _, t := range ts {
@@ -117,73 +118,61 @@ func (ts timeSlice) cumulative() time.Duration {
 	return total
 }
 
+// avg returns the arithmetic mean event duration.
+func (ts timeSlice) avg() time.Duration {
+	return ts.cumulative() / time.Duration(len(ts))
+}
+
+// hMean returns the harmonic mean event duration.
 func (ts timeSlice) hMean() time.Duration {
 	var total float64
-
 	for _, t := range ts {
-		total += (1 / float64(t))
+		total += 1 / float64(t)
 	}
 
-	return time.Duration(float64(ts.Len()) / total)
+	return time.Duration(float64(len(ts)) / total)
 }
 
-func (ts timeSlice) avg() time.Duration {
-	var total time.Duration
-	for _, t := range ts {
-		total += t
-	}
-	return time.Duration(int(total) / ts.Len())
-}
-
+// p returns the nearest-rank pth percentile
+// of the sorted timeSlice.
 func (ts timeSlice) p(p float64) time.Duration {
-	return ts[int(float64(ts.Len())*p+0.5)-1]
+	return ts[int(float64(len(ts))*p+0.5)-1]
 }
 
+// stdDev returns the population standard
+// deviation of event durations.
 func (ts timeSlice) stdDev() time.Duration {
-	m := ts.avg()
-	s := 0.00
+	mean := ts.avg()
 
+	var sqSum float64
 	for _, t := range ts {
-		s += math.Pow(float64(m-t), 2)
+		d := float64(t - mean)
+		sqSum += d * d
 	}
 
-	msq := s / float64(ts.Len())
-
-	return time.Duration(math.Sqrt(msq))
+	return time.Duration(math.Sqrt(sqSum / float64(len(ts))))
 }
 
+// long5p returns the average of the
+// longest 5% event durations.
 func (ts timeSlice) long5p() time.Duration {
-	set := ts[int(float64(ts.Len())*0.95+0.5):]
-
+	set := ts[int(float64(len(ts))*0.95+0.5):]
 	if len(set) <= 1 {
-		return ts[ts.Len()-1]
+		return ts.max()
 	}
 
-	var t time.Duration
-	var i int
-	for _, n := range set {
-		t += n
-		i++
-	}
-
-	return time.Duration(int(t) / i)
+	return set.avg()
 }
 
+// short5p returns the average of the
+// shortest 5% event durations.
 func (ts timeSlice) short5p() time.Duration {
-	set := ts[:int(float64(ts.Len())*0.05+0.5)]
-
+	set := ts[:int(float64(len(ts))*0.05+0.5)]
 	if len(set) <= 1 {
-		return ts[0]
+		return ts.min()
 	}
 
-	var t time.Duration
-	var i int
-	for _, n := range set {
-		t += n
-		i++
-	}
-
-	return time.Duration(int(t) / i)
+	return set.avg()
 }
 
 func (ts timeSlice) min() time.Duration {
@@ -191,9 +180,11 @@ func (ts timeSlice) min() time.Duration {
 }
 
 func (ts timeSlice) max() time.Duration {
-	return ts[ts.Len()-1]
+	return ts[len(ts)-1]
 }
 
+// srange returns the range (max-min)
+// of event durations.
 func (ts timeSlice) srange() time.Duration {
 	return ts.max() - ts.min()
 }

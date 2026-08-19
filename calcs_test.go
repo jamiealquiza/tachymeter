@@ -1,8 +1,6 @@
 package tachymeter_test
 
 import (
-	//"fmt"
-	"sort"
 	"testing"
 	"time"
 
@@ -57,47 +55,6 @@ func TestCalc(t *testing.T) {
 
 	if metrics.Count != 32 {
 		t.Error("Expected 32, got ", metrics.Count)
-	}
-
-	expectedDurs := []time.Duration{
-		4000000,
-		4000000,
-		9000000,
-		9000000,
-		12000000,
-		12000000,
-		14000000,
-		14000000,
-		17000000,
-		17000000,
-		21000000,
-		21000000,
-		36000000,
-		36000000,
-		37000000,
-		37000000,
-		42000000,
-		42000000,
-		54000000,
-		54000000,
-		67000000,
-		67000000,
-		77000000,
-		77000000,
-		88000000,
-		88000000,
-		89000000,
-		89000000,
-		93000000,
-		93000000,
-	}
-
-	sort.Sort(ta.Times)
-
-	for n, d := range ta.Times {
-		if d != expectedDurs[n] {
-			t.Errorf("Expected %d, got %d\n", expectedDurs[n], d)
-		}
 	}
 
 	if metrics.Time.Cumulative != 1320000000 {

@@ -3,7 +3,6 @@
 package tachymeter
 
 import (
-	"bytes"
 	"encoding/json"
 	"fmt"
 	"math"
@@ -13,36 +12,37 @@ import (
 	"time"
 )
 
-// Config holds tachymeter initialization
-// parameters. Size defines the sample capacity.
-// Tachymeter is thread safe.
+// Config holds tachymeter initialization parameters.
 type Config struct {
-	Size  int
-	Safe  bool // Deprecated. Flag held on to as to not break existing users.
-	HBins int  // Histogram bins.
+	// Size defines the sample capacity.
+	Size int
+
+	// HBins is the number of histogram bins.
+	HBins int
+
+	// Safe is retained so that existing users keep compiling.
+	//
+	// Deprecated: Tachymeter is always safe for concurrent use.
+	Safe bool
 }
 
 // Tachymeter holds event durations
 // and counts.
 type Tachymeter struct {
-	sync.Mutex
-	Size     uint64
-	Times    timeSlice
-	Count    uint64
-	WallTime time.Duration
-	HBins    int
+	size     uint64
+	times    []atomic.Int64 // Ring buffer of event durations.
+	count    atomic.Uint64
+	wallTime atomic.Int64
+	hBins    int
+	mu       sync.Mutex // Serializes Calc and Reset.
 }
 
-// timeslice holds time.Duration values.
+// timeSlice holds time.Duration values.
 type timeSlice []time.Duration
 
-// Satisfy sort for timeSlice.
-func (p timeSlice) Len() int           { return len(p) }
-func (p timeSlice) Less(i, j int) bool { return int64(p[i]) < int64(p[j]) }
-func (p timeSlice) Swap(i, j int)      { p[i], p[j] = p[j], p[i] }
-
-// Histogram is a map["low-high duration"]count of events that
-// fall within the low-high time duration range.
+// Histogram is an ordered list of bins, where each bin is a
+// map["low - high duration"]count of events that fall within
+// the low-high time duration range.
 type Histogram []map[string]uint64
 
 // Metrics holds the calculated outputs
@@ -75,36 +75,40 @@ type Metrics struct {
 	Count            int           // Total number of events observed.
 }
 
-// New initializes a new Tachymeter.
+// New initializes a new Tachymeter. A sample window
+// size below 1 is raised to 1; a histogram bin count
+// below 1 falls back to the default of 10.
 func New(c *Config) *Tachymeter {
-	var hSize int
-	if c.HBins != 0 {
-		hSize = c.HBins
-	} else {
-		hSize = 10
+	size := c.Size
+	if size < 1 {
+		size = 1
+	}
+
+	hBins := c.HBins
+	if hBins < 1 {
+		hBins = 10
 	}
 
 	return &Tachymeter{
-		Size:  uint64(c.Size),
-		Times: make([]time.Duration, c.Size),
-		HBins: hSize,
+		size:  uint64(size),
+		times: make([]atomic.Int64, size),
+		hBins: hBins,
 	}
 }
 
-// Reset resets a Tachymeter
-// instance for reuse.
+// Reset resets a Tachymeter instance for reuse,
+// clearing the event count and any wall time set
+// with SetWallTime.
 func (m *Tachymeter) Reset() {
-	// This lock is obviously not needed for
-	// the m.Count update, rather to prevent a
-	// Tachymeter reset while Calc is being called.
-	m.Lock()
-	atomic.StoreUint64(&m.Count, 0)
-	m.Unlock()
+	m.mu.Lock()
+	m.count.Store(0)
+	m.wallTime.Store(0)
+	m.mu.Unlock()
 }
 
 // AddTime adds a time.Duration to Tachymeter.
 func (m *Tachymeter) AddTime(t time.Duration) {
-	m.Times[(atomic.AddUint64(&m.Count, 1)-1)%m.Size] = t
+	m.times[(m.count.Add(1)-1)%m.size].Store(int64(t))
 }
 
 // SetWallTime optionally sets an elapsed wall time duration.
@@ -112,7 +116,7 @@ func (m *Tachymeter) AddTime(t time.Duration) {
 // This is useful for concurrent/parallelized events that overlap
 // in wall time and are writing to a shared Tachymeter instance.
 func (m *Tachymeter) SetWallTime(t time.Duration) {
-	m.WallTime = t
+	m.wallTime.Store(int64(t))
 }
 
 // WriteHTML writes a histograph
@@ -172,46 +176,33 @@ func (m *Metrics) JSON() string {
 // for the JSON() method. This is exported as a
 // requirement but not intended for end users.
 func (m *Metrics) MarshalJSON() ([]byte, error) {
+	// Durations are rendered as their
+	// human-readable strings.
+	type times struct {
+		Cumulative string
+		HMean      string
+		Avg        string
+		P50        string
+		P75        string
+		P95        string
+		P99        string
+		P999       string
+		Long5p     string
+		Short5p    string
+		Max        string
+		Min        string
+		Range      string
+		StdDev     string
+	}
+
 	return json.Marshal(&struct {
-		Time struct {
-			Cumulative string
-			HMean      string
-			Avg        string
-			P50        string
-			P75        string
-			P95        string
-			P99        string
-			P999       string
-			Long5p     string
-			Short5p    string
-			Max        string
-			Min        string
-			Range      string
-			StdDev     string
-		}
-		Rate struct {
-			Second float64
-		}
+		Time      times
+		Rate      struct{ Second float64 }
 		Samples   int
 		Count     int
 		Histogram *Histogram
 	}{
-		Time: struct {
-			Cumulative string
-			HMean      string
-			Avg        string
-			P50        string
-			P75        string
-			P95        string
-			P99        string
-			P999       string
-			Long5p     string
-			Short5p    string
-			Max        string
-			Min        string
-			Range      string
-			StdDev     string
-		}{
+		Time: times{
 			Cumulative: m.Time.Cumulative.String(),
 			HMean:      m.Time.HMean.String(),
 			Avg:        m.Time.Avg.String(),
@@ -227,68 +218,53 @@ func (m *Metrics) MarshalJSON() ([]byte, error) {
 			Range:      m.Time.Range.String(),
 			StdDev:     m.Time.StdDev.String(),
 		},
-		Rate: struct{ Second float64 }{
-			Second: m.Rate.Second,
-		},
-		Histogram: m.Histogram,
+		Rate:      struct{ Second float64 }{m.Rate.Second},
 		Samples:   m.Samples,
 		Count:     m.Count,
+		Histogram: m.Histogram,
 	})
 }
 
-// String returns a formatted Metrics string scaled
-// to a width of s.
+// String returns a formatted Histogram string with
+// bar lengths scaled to a width of s.
 func (h *Histogram) String(s int) string {
-	if h == nil {
+	if h == nil || len(*h) == 0 {
 		return ""
 	}
 
-	var min, max uint64 = math.MaxUint64, 0
 	// Get the histogram min/max counts.
+	var low, high uint64 = math.MaxUint64, 0
 	for _, bin := range *h {
 		for _, v := range bin {
-			if v > max {
-				max = v
-			}
-			if v < min {
-				min = v
-			}
+			low = min(low, v)
+			high = max(high, v)
 		}
 	}
 
-	// Handle cases of no or
-	// a single bin.
-	switch len(*h) {
-	case 0:
-		return ""
-	case 1:
-		min = 0
+	// With a single bin, scale its
+	// bar to the full width.
+	if len(*h) == 1 {
+		low = 0
 	}
 
-	var b bytes.Buffer
-
-	// Build histogram string.
+	// Build the histogram string.
+	var b strings.Builder
 	for _, bin := range *h {
 		for k, v := range bin {
-			// Get the bar length.
-			blen := scale(float64(v), float64(min), float64(max), 1, float64(s))
-			line := fmt.Sprintf("%22s %s\n", k, strings.Repeat("-", int(blen)))
-			b.WriteString(line)
+			blen := scale(float64(v), float64(low), float64(high), 1, float64(s))
+			fmt.Fprintf(&b, "%22s %s\n", k, strings.Repeat("-", int(blen)))
 		}
 	}
 
 	return b.String()
 }
 
-// Scale scales the input x with the input-min a0,
-// input-max a1, output-min b0, and output-max b1.
+// scale maps the input x in the range [a0, a1]
+// to the output range [b0, b1].
 func scale(x, a0, a1, b0, b1 float64) float64 {
-	a, b := x-a0, a1-a0
-	var c float64
-	if a == 0 {
-		c = 0
-	} else {
-		c = a / b
+	if x == a0 {
+		return b0
 	}
-	return c*(b1-b0) + b0
+
+	return (x-a0)/(a1-a0)*(b1-b0) + b0
 }

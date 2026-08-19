@@ -1,24 +1,23 @@
 package tachymeter
 
 import (
-	"bytes"
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
+	"os"
 	"path/filepath"
 	"strconv"
 	"strings"
 	"time"
 )
 
-// Timeline holds a []*timelineEvents,
-// which nest *Metrics for analyzing
-// multiple collections of measured events.
+// Timeline holds a series of *timelineEvents,
+// which nest *Metrics for analyzing multiple
+// collections of measured events.
 type Timeline struct {
 	timeline []*timelineEvent
 }
 
-// timelineEvent holds a *Metrics and
+// timelineEvent holds a *Metrics and the
 // time that it was added to the Timeline.
 type timelineEvent struct {
 	Metrics *Metrics
@@ -33,49 +32,43 @@ func (t *Timeline) AddEvent(m *Metrics) {
 	})
 }
 
-// WriteHTML takes an absolute path p and writes an
-// html file to 'p/tachymeter-<timestamp>.html' of all
-// histograms held by the *Timeline, in series.
+// WriteHTML takes a path p and writes an html file to
+// 'p/tachymeter-<timestamp>.html' of all histograms
+// held by the *Timeline, in series.
 func (t *Timeline) WriteHTML(p string) error {
 	path, err := filepath.Abs(p)
 	if err != nil {
 		return err
 	}
-	var b bytes.Buffer
+
+	var b strings.Builder
 
 	b.WriteString(head)
 
-	// Append graph + info entry for each timeline
-	// event.
-	for n := range t.timeline {
+	// Append graph + info entry for
+	// each timeline event.
+	for n, e := range t.timeline {
 		// Graph div.
-		b.WriteString(fmt.Sprintf(`%s<div class="graph">%s`, tab, nl))
-		b.WriteString(fmt.Sprintf(`%s%s<canvas id="canvas-%d"></canvas>%s`, tab, tab, n, nl))
-		b.WriteString(fmt.Sprintf(`%s</div>%s`, tab, nl))
+		fmt.Fprintf(&b, `%s<div class="graph">%s`, tab, nl)
+		fmt.Fprintf(&b, `%s%s<canvas id="canvas-%d"></canvas>%s`, tab, tab, n, nl)
+		fmt.Fprintf(&b, `%s</div>%s`, tab, nl)
 		// Info div.
-		b.WriteString(fmt.Sprintf(`%s<div class="info">%s`, tab, nl))
-		b.WriteString(fmt.Sprintf(`%s<p><h2>Iteration %d</h2>%s`, tab, n+1, nl))
-		b.WriteString(t.timeline[n].Metrics.String())
-		b.WriteString(fmt.Sprintf("%s%s</p></div>%s", nl, tab, nl))
+		fmt.Fprintf(&b, `%s<div class="info">%s`, tab, nl)
+		fmt.Fprintf(&b, `%s<p><h2>Iteration %d</h2>%s`, tab, n+1, nl)
+		b.WriteString(e.Metrics.String())
+		fmt.Fprintf(&b, "%s%s</p></div>%s", nl, tab, nl)
 	}
 
 	// Write graphs.
-	for id, m := range t.timeline {
-		s := genGraphHTML(m, id)
-		b.WriteString(s)
+	for id, e := range t.timeline {
+		b.WriteString(genGraphHTML(e, id))
 	}
 
 	b.WriteString(tail)
 
-	// Write file.
-	d := []byte(b.String())
-	fname := fmt.Sprintf("%s/tachymeter-%d.html", path, time.Now().Unix())
-	err = ioutil.WriteFile(fname, d, 0644)
-	if err != nil {
-		return err
-	}
+	fname := filepath.Join(path, fmt.Sprintf("tachymeter-%d.html", time.Now().Unix()))
 
-	return nil
+	return os.WriteFile(fname, []byte(b.String()), 0644)
 }
 
 // genGraphHTML takes a *timelineEvent and id (used for each graph
@@ -84,8 +77,8 @@ func genGraphHTML(te *timelineEvent, id int) string {
 	keys := []string{}
 	values := []uint64{}
 
-	for _, b := range *te.Metrics.Histogram {
-		for k, v := range b {
+	for _, bin := range *te.Metrics.Histogram {
+		for k, v := range bin {
 			keys = append(keys, k)
 			values = append(values, v)
 		}
@@ -94,9 +87,11 @@ func genGraphHTML(te *timelineEvent, id int) string {
 	keysj, _ := json.Marshal(keys)
 	valuesj, _ := json.Marshal(values)
 
-	out := strings.Replace(graph, "XCANVASID", strconv.Itoa(id), 1)
-	out = strings.Replace(out, "XKEYS", string(keysj), 1)
-	out = strings.Replace(out, "XVALUES", string(valuesj), 1)
+	r := strings.NewReplacer(
+		"XCANVASID", strconv.Itoa(id),
+		"XKEYS", string(keysj),
+		"XVALUES", string(valuesj),
+	)
 
-	return out
+	return r.Replace(graph)
 }
