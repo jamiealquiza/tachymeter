@@ -9,7 +9,6 @@ import (
 	"math"
 	"strings"
 	"sync"
-	"sync/atomic"
 	"time"
 )
 
@@ -75,36 +74,43 @@ type Metrics struct {
 	Count            int           // Total number of events observed.
 }
 
-// New initializes a new Tachymeter.
+// New initializes a new Tachymeter. A sample window
+// size below 1 is raised to 1; a histogram bin count
+// below 1 falls back to the default of 10.
 func New(c *Config) *Tachymeter {
-	var hSize int
-	if c.HBins != 0 {
-		hSize = c.HBins
-	} else {
-		hSize = 10
+	size := c.Size
+	if size < 1 {
+		size = 1
+	}
+
+	hBins := c.HBins
+	if hBins < 1 {
+		hBins = 10
 	}
 
 	return &Tachymeter{
-		Size:  uint64(c.Size),
-		Times: make([]time.Duration, c.Size),
-		HBins: hSize,
+		Size:  uint64(size),
+		Times: make([]time.Duration, size),
+		HBins: hBins,
 	}
 }
 
-// Reset resets a Tachymeter
-// instance for reuse.
+// Reset resets a Tachymeter instance for reuse,
+// clearing the event count and any wall time set
+// with SetWallTime.
 func (m *Tachymeter) Reset() {
-	// This lock is obviously not needed for
-	// the m.Count update, rather to prevent a
-	// Tachymeter reset while Calc is being called.
 	m.Lock()
-	atomic.StoreUint64(&m.Count, 0)
+	m.Count = 0
+	m.WallTime = 0
 	m.Unlock()
 }
 
 // AddTime adds a time.Duration to Tachymeter.
 func (m *Tachymeter) AddTime(t time.Duration) {
-	m.Times[(atomic.AddUint64(&m.Count, 1)-1)%m.Size] = t
+	m.Lock()
+	m.Times[m.Count%m.Size] = t
+	m.Count++
+	m.Unlock()
 }
 
 // SetWallTime optionally sets an elapsed wall time duration.
@@ -112,7 +118,9 @@ func (m *Tachymeter) AddTime(t time.Duration) {
 // This is useful for concurrent/parallelized events that overlap
 // in wall time and are writing to a shared Tachymeter instance.
 func (m *Tachymeter) SetWallTime(t time.Duration) {
+	m.Lock()
 	m.WallTime = t
+	m.Unlock()
 }
 
 // WriteHTML writes a histograph

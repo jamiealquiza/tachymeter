@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"math"
 	"sort"
-	"sync/atomic"
 	"time"
 )
 
@@ -12,29 +11,41 @@ import (
 // and returns it in the form of a *Metrics.
 func (m *Tachymeter) Calc() *Metrics {
 	metrics := &Metrics{}
-	if atomic.LoadUint64(&m.Count) == 0 {
+
+	// Take a snapshot of the sample
+	// window and counts.
+	m.Lock()
+
+	if m.Count == 0 {
+		m.Unlock()
 		return metrics
 	}
 
-	m.Lock()
+	metrics.Count = int(m.Count)
+	metrics.Samples = metrics.Count
+	if m.Count > m.Size {
+		metrics.Samples = int(m.Size)
+	}
 
-	metrics.Samples = int(math.Min(float64(atomic.LoadUint64(&m.Count)), float64(m.Size)))
-	metrics.Count = int(atomic.LoadUint64(&m.Count))
 	times := make(timeSlice, metrics.Samples)
 	copy(times, m.Times[:metrics.Samples])
+	wallTime := m.WallTime
+
+	m.Unlock()
+
 	sort.Sort(times)
 
 	metrics.Time.Cumulative = times.cumulative()
+
 	var rateTime float64
-	if m.WallTime != 0 {
-		rateTime = float64(metrics.Count) / float64(m.WallTime)
-	} else {
+	switch {
+	case wallTime != 0:
+		rateTime = float64(metrics.Count) / float64(wallTime)
+	case metrics.Time.Cumulative != 0:
 		rateTime = float64(metrics.Samples) / float64(metrics.Time.Cumulative)
 	}
 
 	metrics.Rate.Second = rateTime * 1e9
-
-	m.Unlock()
 
 	metrics.Time.Avg = times.avg()
 	metrics.Time.HMean = times.hMean()
@@ -58,52 +69,46 @@ func (m *Tachymeter) Calc() *Metrics {
 // hgram returns a histogram of event durations in
 // b bins, along with the bin size.
 func (ts timeSlice) hgram(b int) (*Histogram, time.Duration) {
-	res := time.Duration(1000)
-	// Interval is the time range / n bins.
-	interval := time.Duration(int64(ts.srange()) / int64(b))
-	high := ts.min() + interval
-	low := ts.min()
-	max := ts.max()
-	hgram := &Histogram{}
-	pos := 1 // Bin position.
+	min, max := ts.min(), ts.max()
 
-	bstring := fmt.Sprintf("%s - %s", low/res*res, high/res*res)
-	bin := map[string]uint64{}
-
-	for _, v := range ts {
-		// If v fits in the current bin,
-		// increment the bin count.
-		if v <= high {
-			bin[bstring]++
-		} else {
-			// If not, prepare the next bin.
-			*hgram = append(*hgram, bin)
-			bin = map[string]uint64{}
-
-			// Update the high/low range values.
-			low = high + time.Nanosecond
-
-			high += interval
-			// if we're going into the
-			// last bin, set high to max.
-			if pos == b-1 {
-				high = max
-			}
-
-			bstring = fmt.Sprintf("%s - %s", low/res*res, high/res*res)
-
-			// The value didn't fit in the previous
-			// bin, so the new bin count should
-			// be incremented.
-			bin[bstring]++
-
-			pos++
-		}
+	// Interval is the time range / n bins. A zero
+	// interval (all samples within b nanoseconds of
+	// each other) is raised to 1ns so that bins
+	// cover a non-zero range.
+	interval := (max - min) / time.Duration(b)
+	if interval == 0 {
+		interval = time.Nanosecond
 	}
 
-	*hgram = append(*hgram, bin)
+	// Tally each event in the bin
+	// covering its duration.
+	counts := make([]uint64, b)
+	for _, v := range ts {
+		bin := int((v - min) / interval)
+		// The max value lands on the top boundary
+		// of the last bin; clamp it in.
+		if bin > b-1 {
+			bin = b - 1
+		}
+		counts[bin]++
+	}
 
-	return hgram, interval
+	// Label each bin with the duration range it
+	// covers, truncated to microsecond resolution.
+	res := time.Duration(1000)
+	hgram := make(Histogram, b)
+	for i := range hgram {
+		low := min + time.Duration(i)*interval
+		high := low + interval
+		if i == b-1 {
+			high = max
+		}
+
+		bstring := fmt.Sprintf("%s - %s", low/res*res, high/res*res)
+		hgram[i] = map[string]uint64{bstring: counts[i]}
+	}
+
+	return &hgram, interval
 }
 
 // These should be self-explanatory:
